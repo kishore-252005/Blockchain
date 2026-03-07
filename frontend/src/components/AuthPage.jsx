@@ -170,6 +170,32 @@ const BrandPanel = ({ selectedType }) => {
 /* ─────────────────────────────────────────────
    MAIN AUTH PAGE
 ───────────────────────────────────────────── */
+
+const inputStyle = {
+    width: '100%', padding: '13px 16px', background: 'rgba(15,23,42,0.8)',
+    border: '1px solid rgba(71,85,105,0.6)', borderRadius: 12, color: '#f1f5f9',
+    fontSize: 14, outline: 'none', boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
+};
+const labelStyle = { display: 'block', marginBottom: 7, fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.12em' };
+
+const InputField = ({ icon: Icon, label, type = 'text', id, placeholder, value, onChange, required, suffix }) => (
+    <div style={{ marginBottom: 18 }}>
+        <label style={labelStyle}>{label}</label>
+        <div style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#475569' }}>
+                <Icon size={15} />
+            </div>
+            <input id={id} type={type} placeholder={placeholder} value={value} onChange={onChange} required={required}
+                style={{ ...inputStyle, paddingLeft: 40, paddingRight: suffix ? 44 : 16 }}
+                onFocus={e => e.target.style.borderColor = 'rgba(139,92,246,0.7)'}
+                onBlur={e => e.target.style.borderColor = 'rgba(71,85,105,0.6)'}
+            />
+            {suffix && <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }}>{suffix}</div>}
+        </div>
+    </div>
+);
+
 const AuthPage = ({ onSuccess }) => {
     const { register, login } = useAuth();
     const [mode, setMode] = useState('login');
@@ -200,30 +226,6 @@ const AuthPage = ({ onSuccess }) => {
         finally { setLoading(false); }
     };
 
-    const inputStyle = {
-        width: '100%', padding: '13px 16px', background: 'rgba(15,23,42,0.8)',
-        border: '1px solid rgba(71,85,105,0.6)', borderRadius: 12, color: '#f1f5f9',
-        fontSize: 14, outline: 'none', boxSizing: 'border-box',
-        transition: 'border-color 0.2s',
-    };
-    const labelStyle = { display: 'block', marginBottom: 7, fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.12em' };
-
-    const InputField = ({ icon: Icon, label, type = 'text', id, placeholder, value, onChange, required, suffix }) => (
-        <div style={{ marginBottom: 18 }}>
-            <label style={labelStyle}>{label}</label>
-            <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#475569' }}>
-                    <Icon size={15} />
-                </div>
-                <input id={id} type={type} placeholder={placeholder} value={value} onChange={onChange} required={required}
-                    style={{ ...inputStyle, paddingLeft: 40, paddingRight: suffix ? 44 : 16 }}
-                    onFocus={e => e.target.style.borderColor = 'rgba(139,92,246,0.7)'}
-                    onBlur={e => e.target.style.borderColor = 'rgba(71,85,105,0.6)'}
-                />
-                {suffix && <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }}>{suffix}</div>}
-            </div>
-        </div>
-    );
 
     return (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '100vh', position: 'fixed', inset: 0, zIndex: 100 }}>
