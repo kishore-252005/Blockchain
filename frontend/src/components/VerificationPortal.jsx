@@ -535,12 +535,12 @@ const VerificationPortal = () => {
                                         <AlertTriangle size={40} className="text-red-400" />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-bold">Verification Failed</h3>
-                                        <p className="text-slate-400 text-sm">No matching record found in database or on-chain ledger.</p>
+                                        <h3 className="text-2xl font-bold">Invalid Certificate</h3>
+                                        <p className="text-slate-400 text-sm">This PDF or ID was not issued by a registered education institution.</p>
                                     </div>
                                 </div>
                                 <p className="text-slate-500 text-sm mt-2">
-                                    Please check the Certificate ID is correct. If you uploaded a PDF, the text may not have been extracted correctly — try the "By ID" tab instead.
+                                    No matching record was found in our database or on the Polygon blockchain ledger.
                                 </p>
                             </motion.div>
                         )}
