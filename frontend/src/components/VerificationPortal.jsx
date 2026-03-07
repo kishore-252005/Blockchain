@@ -403,8 +403,8 @@ const VerificationPortal = ({ user }) => {
                                                 value={nameInput} onChange={e => setNameInput(e.target.value)} />
 
                                             <button type="submit" disabled={loading || (!certId.trim() && !nameInput.trim())}
-                                                className="w-full mt-6 py-5 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all bg-white hover:bg-black hover:text-white border-4 border-black text-black font-black uppercase tracking-widest rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 text-lg">
-                                                {loading ? <><Loader2 size={24} className="animate-spin" /> Verifying Records...</> : <><ShieldCheck size={26} /> Verify Authenticity</>}
+                                                className="w-full mt-6 py-5 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all bg-yellow-400 hover:bg-yellow-500 border-4 border-black text-black font-black uppercase tracking-widest rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 text-lg">
+                                                {loading ? <><Loader2 size={24} className="animate-spin" /> Verifying...</> : <><ShieldCheck size={26} /> Verify Authenticity</>}
                                             </button>
                                         </form>
                                         {scannerDone && (
