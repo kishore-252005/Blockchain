@@ -453,22 +453,22 @@ const VerificationPortal = ({ user }) => {
                     <AnimatePresence mode="wait">
                         {result?.status === 'authentic' && (
                             <motion.div key="authentic" initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-                                className="bg-slate-900 border border-green-500/40 rounded-xl p-8 shadow-sm mt-6">
+                                className="bg-white border-4 border-black rounded-none p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mt-6">
 
                                 {result.fromDB && (
-                                    <div className="flex items-center gap-2 mb-6 px-3 py-1.5 rounded bg-green-500/10 border border-green-500/20 w-fit">
-                                        <Database size={12} className="text-green-500" />
-                                        <span className="text-green-500 text-[10px] font-bold uppercase tracking-wider">Verified from TrustCert Database</span>
+                                    <div className="flex items-center gap-2 mb-6 px-3 py-1.5 bg-green-400 border-2 border-black w-fit shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        <Database size={12} className="text-black" />
+                                        <span className="text-black text-[10px] font-black uppercase tracking-wider">Verified from TrustCert Database</span>
                                     </div>
                                 )}
 
                                 <div className="flex items-center gap-4 mb-8">
-                                    <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-green-500/10 border border-green-500/20">
-                                        <ShieldCheck size={32} className="text-green-500" />
+                                    <div className="w-14 h-14 bg-green-400 border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                        <ShieldCheck size={32} className="text-black" />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-bold text-green-500">Certificate Authentic</h3>
-                                        <p className="text-slate-400 text-sm mt-1">Legally binding digital record on Polygon blockchain</p>
+                                        <h3 className="text-2xl font-black text-black uppercase tracking-tight">Certificate Authentic</h3>
+                                        <p className="text-black/70 font-bold text-sm mt-1 uppercase">Legally binding digital record on Polygon</p>
                                     </div>
                                 </div>
 
@@ -478,14 +478,14 @@ const VerificationPortal = ({ user }) => {
                                             { icon: User, label: user?.role === 'organization' ? 'Candidate Name' : 'Student Name', value: result.student },
                                             { icon: BookOpen, label: 'Degree', value: result.degree, sub: result.grade ? `Grade: ${result.grade}` : null },
                                         ].map(({ icon: Icon, label, value, sub }) => (
-                                            <div key={label} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                                                <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
-                                                    <Icon className="text-violet-400" size={18} />
+                                            <div key={label} className="flex gap-4 p-4 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
+                                                <div className="w-10 h-10 bg-violet-400 border-2 border-black flex items-center justify-center shrink-0">
+                                                    <Icon className="text-black font-black" size={18} />
                                                 </div>
-                                                <div>
-                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">{label}</p>
-                                                    <p className="font-bold text-lg">{value}</p>
-                                                    {sub && <p className="text-sm text-green-400 font-bold mt-1">{sub}</p>}
+                                                <div className="overflow-hidden">
+                                                    <p className="text-[10px] text-black/60 font-black uppercase tracking-widest mb-1">{label}</p>
+                                                    <p className="font-black text-lg text-black break-words">{value}</p>
+                                                    {sub && <p className="text-sm text-green-600 font-black mt-1 uppercase">{sub}</p>}
                                                 </div>
                                             </div>
                                         ))}
@@ -495,32 +495,32 @@ const VerificationPortal = ({ user }) => {
                                             { icon: MapPin, label: 'Institution', value: result.institution },
                                             { icon: Calendar, label: 'Graduation Year', value: result.issued },
                                         ].map(({ icon: Icon, label, value }) => (
-                                            <div key={label} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                                                <div className="w-10 h-10 rounded-xl bg-fuchsia-500/20 flex items-center justify-center shrink-0">
-                                                    <Icon className="text-fuchsia-400" size={18} />
+                                            <div key={label} className="flex gap-4 p-4 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
+                                                <div className="w-10 h-10 bg-fuchsia-400 border-2 border-black flex items-center justify-center shrink-0">
+                                                    <Icon className="text-black font-black" size={18} />
                                                 </div>
-                                                <div>
-                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">{label}</p>
-                                                    <p className="font-bold text-lg">{value}</p>
+                                                <div className="overflow-hidden">
+                                                    <p className="text-[10px] text-black/60 font-black uppercase tracking-widest mb-1">{label}</p>
+                                                    <p className="font-black text-lg text-black break-all">{value}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
 
-                                <div className="pt-6 border-t border-slate-800 space-y-5">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm bg-slate-950/50 p-4 rounded-lg border border-slate-800/50">
-                                        <div>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Cert ID</p>
-                                            <p className="font-mono text-slate-300">{result.certId}</p>
+                                <div className="pt-6 border-t-4 border-black space-y-5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm bg-yellow-400 border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                        <div className="overflow-hidden">
+                                            <p className="text-[10px] text-black/70 font-black uppercase tracking-widest mb-1">Cert ID</p>
+                                            <p className="font-mono font-black text-black break-all">{result.certId}</p>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Transaction Hash</p>
-                                            <p className="font-mono text-slate-300 break-all">{result.hash}</p>
+                                        <div className="overflow-hidden">
+                                            <p className="text-[10px] text-black/70 font-black uppercase tracking-widest mb-1">Transaction Hash</p>
+                                            <p className="font-mono font-black text-black break-all">{result.hash}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap items-center justify-between gap-4">
-                                        <div className="flex items-center gap-2 text-slate-500 text-xs">
+                                        <div className="flex items-center gap-2 text-black font-bold uppercase text-xs">
                                             <Clock size={14} /> Verified at {new Date().toLocaleTimeString()}
                                         </div>
                                         <div className="flex gap-4">
@@ -570,7 +570,7 @@ const VerificationPortal = ({ user }) => {
                         </h4>
                         <div className="space-y-3">{recentVerifications.map((v, i) => <RecentRow key={i} {...v} />)}</div>
                         <button onClick={() => setIsLogsOpen(true)}
-                            className="w-full text-center py-3 mt-4 bg-slate-800/50 hover:bg-slate-800 rounded-lg text-xs font-semibold text-slate-300 transition-colors">
+                            className="w-full text-center py-3 mt-4 bg-cyan-400 hover:bg-cyan-500 text-black border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 font-black uppercase tracking-widest text-xs transition-all">
                             View All Logs
                         </button>
                     </div>
