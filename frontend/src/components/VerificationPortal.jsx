@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, QrCode, ShieldCheck, AlertTriangle, User, Calendar, BookOpen,
-    MapPin, Clock, ExternalLink, Activity, X, Download, Database,
+    MapPin, Clock, ExternalLink, Activity, X, Download, Database, Briefcase,
     FileText, Upload, Camera, CheckCircle2, Loader2, ScanLine, RefreshCw
 } from 'lucide-react';
 import axios from 'axios';
@@ -250,7 +250,7 @@ const PdfUploader = ({ onExtracted, loading }) => {
 };
 
 /* ─── Main Verification Portal ───────────────────────────────────── */
-const VerificationPortal = () => {
+const VerificationPortal = ({ user }) => {
     const [activeMode, setActiveMode] = useState('id');
     const [certId, setCertId] = useState('');
     const [nameInput, setNameInput] = useState('');
@@ -343,10 +343,16 @@ const VerificationPortal = () => {
     return (
         <div className="max-w-6xl mx-auto py-10">
             <div className="text-center mb-10">
+                {user?.role === 'organization' && (
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 text-[10px] font-black tracking-[0.2em] uppercase mb-6">
+                        <Briefcase size={14} /> {user.orgName} Workspace
+                    </motion.div>
+                )}
                 <h2 className="text-4xl font-bold mb-3 text-white">
-                    Certificate Verification
+                    {user?.role === 'organization' ? 'Employer Verification Portal' : 'Certificate Verification'}
                 </h2>
-                <p className="text-slate-400 text-base">Instantly verify certificates by ID, uploaded PDF, or live QR camera scan.</p>
+                <p className="text-slate-400 text-base">Instantly verify candidate credentials securely via Blockchain.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -378,7 +384,7 @@ const VerificationPortal = () => {
                                         <Search className="text-violet-400" size={18} /> Verify by ID, Name, or Code
                                     </h3>
                                     <p className="text-slate-400 text-sm mb-6">
-                                        Enter the certificate ID, student name, or any reference code.
+                                        Enter the certificate ID, {user?.role === 'organization' ? 'candidate' : 'student'} name, or any reference code.
                                     </p>
                                     <form onSubmit={handleIdSubmit} className="space-y-4">
                                         <div className="relative">
@@ -393,7 +399,7 @@ const VerificationPortal = () => {
                                         </div>
                                         <div className="relative">
                                             <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-                                            <input className="w-full bg-slate-900 border border-slate-700 rounded-lg py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-violet-500 transition-colors" placeholder="Student full name (e.g. Rahul Sharma)"
+                                            <input className="w-full bg-slate-900 border border-slate-700 rounded-lg py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-violet-500 transition-colors" placeholder={`${user?.role === 'organization' ? 'Candidate' : 'Student'} full name (e.g. Rahul Sharma)`}
                                                 value={nameInput} onChange={e => setNameInput(e.target.value)} />
                                         </div>
                                         <button type="submit" disabled={loading || (!certId.trim() && !nameInput.trim())}
@@ -468,7 +474,7 @@ const VerificationPortal = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 relative z-10">
                                     <div className="space-y-6">
                                         {[
-                                            { icon: User, label: 'Student Name', value: result.student },
+                                            { icon: User, label: user?.role === 'organization' ? 'Candidate Name' : 'Student Name', value: result.student },
                                             { icon: BookOpen, label: 'Degree', value: result.degree, sub: result.grade ? `Grade: ${result.grade}` : null },
                                         ].map(({ icon: Icon, label, value, sub }) => (
                                             <div key={label} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
@@ -575,7 +581,7 @@ const VerificationPortal = () => {
                         <div className="space-y-5">
                             {[
                                 { num: '1', title: 'By ID', text: 'Enter cert ID from email' },
-                                { num: '2', title: 'By Name', text: "Enter student's full name" },
+                                { num: '2', title: 'By Name', text: `Enter ${user?.role === 'organization' ? 'candidate\'s' : 'student\'s'} full name` },
                                 { num: '3', title: 'Upload PDF', text: 'Drop the certificate PDF' },
                                 { num: '4', title: 'Scan QR', text: 'Scan the printed code' },
                             ].map(({ num, title, text }) => (
