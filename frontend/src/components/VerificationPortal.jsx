@@ -449,83 +449,92 @@ const VerificationPortal = () => {
                     {/* ── Result: Authentic ── */}
                     <AnimatePresence mode="wait">
                         {result?.status === 'authentic' && (
-                            <motion.div key="authentic" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                                className="glass p-10 border-2 border-green-500/30 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-6 opacity-10"><ShieldCheck size={200} /></div>
+                            <motion.div key="authentic" initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} transition={{ type: 'spring', bounce: 0.4 }}
+                                className="relative overflow-hidden bg-slate-900 border border-slate-800 rounded-3xl p-10 shadow-[0_0_50px_rgba(34,197,94,0.15)] group">
+
+                                {/* Animated Green Glow Background */}
+                                <div className="absolute top-0 right-0 w-96 h-96 bg-green-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-green-500/20 transition-all duration-700" />
+                                <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+                                <div className="absolute top-0 right-0 p-6 opacity-5"><ShieldCheck size={240} className="text-green-500" /></div>
 
                                 {result.fromDB && (
-                                    <div className="flex items-center gap-2 mb-5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20 w-fit">
-                                        <Database size={12} className="text-green-400" />
-                                        <span className="text-green-400 text-[10px] font-bold uppercase tracking-widest">Verified from TrustCert Database</span>
+                                    <div className="flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/30 w-fit backdrop-blur-md shadow-[0_0_15px_rgba(34,197,94,0.2)]">
+                                        <Database size={14} className="text-green-400" />
+                                        <span className="text-green-400 text-[10px] font-black uppercase tracking-[0.2em]">Verified from TrustCert Database</span>
                                     </div>
                                 )}
 
-                                <div className="flex items-center gap-4 mb-8 relative z-10">
-                                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-green-500/10">
-                                        <ShieldCheck size={40} className="text-green-400" />
+                                <div className="flex items-center gap-5 mb-10 relative z-10">
+                                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-gradient-to-br from-green-400/20 to-emerald-600/20 border border-green-500/30 shadow-inner">
+                                        <ShieldCheck size={44} className="text-green-400" />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-bold">Certificate Authentic ✓</h3>
-                                        <p className="text-slate-400 text-sm">Legally binding digital record on Polygon blockchain</p>
+                                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Certificate Authentic ✓</h3>
+                                        <p className="text-slate-400 text-sm mt-1">Legally binding digital record on Polygon blockchain</p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 relative z-10">
-                                    <div className="space-y-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 relative z-10">
+                                    <div className="space-y-6">
                                         {[
                                             { icon: User, label: 'Student Name', value: result.student },
                                             { icon: BookOpen, label: 'Degree', value: result.degree, sub: result.grade ? `Grade: ${result.grade}` : null },
                                         ].map(({ icon: Icon, label, value, sub }) => (
-                                            <div key={label} className="flex gap-4">
-                                                <Icon className="text-violet-400 shrink-0 mt-0.5" size={18} />
+                                            <div key={label} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                                                <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
+                                                    <Icon className="text-violet-400" size={18} />
+                                                </div>
                                                 <div>
-                                                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">{label}</p>
-                                                    <p className="font-bold">{value}</p>
-                                                    {sub && <p className="text-sm text-green-400 font-bold mt-0.5">{sub}</p>}
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">{label}</p>
+                                                    <p className="font-bold text-lg">{value}</p>
+                                                    {sub && <p className="text-sm text-green-400 font-bold mt-1">{sub}</p>}
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="space-y-5">
+                                    <div className="space-y-6">
                                         {[
                                             { icon: MapPin, label: 'Institution', value: result.institution },
                                             { icon: Calendar, label: 'Graduation Year', value: result.issued },
                                         ].map(({ icon: Icon, label, value }) => (
-                                            <div key={label} className="flex gap-4">
-                                                <Icon className="text-violet-400 shrink-0 mt-0.5" size={18} />
+                                            <div key={label} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                                                <div className="w-10 h-10 rounded-xl bg-fuchsia-500/20 flex items-center justify-center shrink-0">
+                                                    <Icon className="text-fuchsia-400" size={18} />
+                                                </div>
                                                 <div>
-                                                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">{label}</p>
-                                                    <p className="font-bold">{value}</p>
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">{label}</p>
+                                                    <p className="font-bold text-lg">{value}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
 
-                                <div className="pt-6 border-t border-slate-800 space-y-4 relative z-10">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                <div className="pt-8 border-t border-slate-800 space-y-6 relative z-10 mt-auto">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs bg-slate-950/50 p-5 rounded-2xl border border-slate-800/50">
                                         <div>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Cert ID</p>
-                                            <p className="font-mono text-violet-400">{result.certId}</p>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-2 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.8)]" /> Cert ID</p>
+                                            <p className="font-mono text-violet-300 font-medium">{result.certId}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Transaction / IPFS Hash</p>
-                                            <p className="font-mono text-violet-400 break-all">{result.hash}</p>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-2 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-fuchsia-500 shadow-[0_0_10px_rgba(217,70,239,0.8)]" /> Transaction / IPFS Hash</p>
+                                            <p className="font-mono text-fuchsia-300 break-all font-medium">{result.hash}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap items-center justify-between gap-4">
-                                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-                                            <Clock size={12} /> Verified at {new Date().toLocaleTimeString()}
+                                        <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
+                                            <Clock size={14} className="text-violet-400" /> Verified at {new Date().toLocaleTimeString()}
                                         </div>
                                         <div className="flex gap-3">
                                             <button onClick={downloadVerificationPDF} disabled={isDownloading}
-                                                className="btn btn-primary text-xs px-4 py-2">
-                                                {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                                className="btn btn-primary bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] text-sm px-6 py-3 rounded-xl flex items-center gap-2">
+                                                {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                                                 {isDownloading ? 'Generating...' : 'Download Verified PDF'}
                                             </button>
                                             <button onClick={() => window.open(`https://amoy.polygonscan.com/tx/${result.hash}`, '_blank')}
-                                                className="text-violet-400 font-bold uppercase tracking-widest text-xs flex items-center gap-1 hover:text-violet-300">
-                                                PolygonScan <ExternalLink size={12} />
+                                                className="px-5 py-3 rounded-xl border border-violet-500/30 text-violet-400 font-bold uppercase tracking-widest text-[11px] flex items-center gap-2 hover:bg-violet-500/10 hover:border-violet-500/50 transition-all">
+                                                PolygonScan <ExternalLink size={14} />
                                             </button>
                                         </div>
                                     </div>
@@ -534,52 +543,64 @@ const VerificationPortal = () => {
                         )}
 
                         {result?.status === 'invalid' && (
-                            <motion.div key="invalid" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-                                className="glass p-10 border-2 border-red-500/30">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-500/10">
-                                        <AlertTriangle size={40} className="text-red-400" />
+                            <motion.div key="invalid" initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+                                className="relative overflow-hidden bg-slate-900 border border-red-500/50 rounded-3xl p-10 shadow-[0_0_50px_rgba(239,68,68,0.15)] group">
+
+                                <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-red-500/20 transition-all duration-700" />
+
+                                <div className="flex items-center gap-5 mb-4 relative z-10">
+                                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-gradient-to-br from-red-500/20 to-orange-600/20 border border-red-500/30 shadow-inner">
+                                        <AlertTriangle size={44} className="text-red-400" />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-bold">Invalid Certificate</h3>
-                                        <p className="text-slate-400 text-sm">This PDF or ID was not issued by a registered education institution.</p>
+                                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">Invalid Certificate</h3>
+                                        <p className="text-slate-300 text-sm mt-1">This PDF or ID was not issued by a registered education institution.</p>
                                     </div>
                                 </div>
-                                <p className="text-slate-500 text-sm mt-2">
-                                    No matching record was found in our database or on the Polygon blockchain ledger.
-                                </p>
+                                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 relative z-10 mt-6">
+                                    <p className="text-slate-400 text-sm">
+                                        No matching record was found in our database or on the Polygon blockchain ledger.
+                                    </p>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
 
                 {/* ── Sidebar ── */}
-                <div className="space-y-6">
-                    <div className="glass p-6">
-                        <h4 className="font-bold mb-5 flex items-center gap-2">
-                            <Activity className="text-violet-400" size={18} /> Recent Verifications
+                <div className="space-y-6 lg:border-l lg:border-slate-800/50 lg:pl-8">
+                    <div className="p-6 bg-slate-900/40 rounded-3xl border border-slate-800/60 backdrop-blur-xl relative overflow-hidden group">
+                        <div className="absolute top-0 left-0 w-32 h-32 bg-violet-500/10 rounded-full blur-[50px] pointer-events-none transition-all duration-700 group-hover:bg-violet-500/20" />
+                        <h4 className="font-black mb-5 tracking-tight flex items-center gap-3 text-lg">
+                            <Activity className="text-violet-400" size={20} /> Recent Verifications
                         </h4>
-                        <div>{recentVerifications.map((v, i) => <RecentRow key={i} {...v} />)}</div>
+                        <div className="space-y-3">{recentVerifications.map((v, i) => <RecentRow key={i} {...v} />)}</div>
                         <button onClick={() => setIsLogsOpen(true)}
-                            className="w-full text-center py-3 mt-3 text-[10px] uppercase font-bold tracking-widest text-slate-500 hover:text-violet-400 transition-colors">
+                            className="w-full text-center py-4 mt-4 bg-slate-800/30 hover:bg-slate-800 rounded-xl text-[10px] uppercase font-black tracking-[0.2em] text-slate-400 hover:text-violet-400 transition-all border border-slate-700/30 hover:border-violet-500/30">
                             View All Logs
                         </button>
                     </div>
 
-                    <div className="glass p-6">
-                        <h4 className="font-bold mb-4 flex items-center gap-2">
-                            <ScanLine className="text-violet-400" size={18} /> How to Verify
+                    <div className="p-6 bg-slate-900/40 rounded-3xl border border-slate-800/60 backdrop-blur-xl relative overflow-hidden group">
+                        <div className="absolute top-0 left-0 w-32 h-32 bg-fuchsia-500/10 rounded-full blur-[50px] pointer-events-none transition-all duration-700 group-hover:bg-fuchsia-500/20" />
+                        <h4 className="font-black mb-6 tracking-tight flex items-center gap-3 text-lg">
+                            <ScanLine className="text-fuchsia-400" size={20} /> How to Verify
                         </h4>
-                        <div className="space-y-3">
+                        <div className="space-y-5">
                             {[
-                                { num: '01', text: 'By ID — Enter cert ID from email or document' },
-                                { num: '02', text: "By Name \u2014 Enter student's full name" },
-                                { num: '03', text: 'Upload PDF — Drop the certificate PDF file' },
-                                { num: '04', text: 'Scan QR — Use camera to scan the QR code' },
-                            ].map(({ num, text }) => (
-                                <div key={num} className="flex items-start gap-3">
-                                    <span className="text-[9px] font-black text-violet-500 mt-1">{num}</span>
-                                    <p className="text-slate-400 text-xs leading-relaxed">{text}</p>
+                                { num: '01', title: 'By ID', text: 'Enter cert ID from email' },
+                                { num: '02', title: 'By Name', text: "Enter student's full name" },
+                                { num: '03', title: 'Upload PDF', text: 'Drop the certificate PDF' },
+                                { num: '04', title: 'Scan QR', text: 'Scan the printed code' },
+                            ].map(({ num, title, text }) => (
+                                <div key={num} className="flex items-center gap-4 group/item">
+                                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 group-hover/item:border-fuchsia-500/50 group-hover/item:bg-fuchsia-500/10 transition-colors">
+                                        <span className="text-[10px] font-black text-fuchsia-400">{num}</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-white mb-0.5">{title}</p>
+                                        <p className="text-xs text-slate-400">{text}</p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
