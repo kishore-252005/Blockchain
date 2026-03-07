@@ -42,16 +42,18 @@ const AdminPortal = () => {
     const [isBulking, setIsBulking] = useState(false);
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
     const [showGeneratedPDF, setShowGeneratedPDF] = useState(false);
-    const [generatedCert, setGeneratedCert] = useState(null);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const downloadPDF = async () => {
-        const elementHTML = document.querySelector('#certificate-preview');
-        if (!elementHTML) return;
+        setIsDownloading(true);
+        const elementHTML = document.querySelector('#hidden-certificate-preview');
+        if (!elementHTML) { setIsDownloading(false); return; }
         const canvas = await html2canvas(elementHTML, { scale: 2, backgroundColor: '#0f172a' });
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('landscape', 'pt', 'a4');
         pdf.addImage(imgData, 'PNG', 0, 0, 842, 595);
         pdf.save(`${generatedCert.name.replace(/\s+/g, '_')}_Certificate.pdf`);
+        setIsDownloading(false);
     };
 
     const handleBulkIssueAll = () => {
@@ -112,14 +114,6 @@ const AdminPortal = () => {
             setIsIssuing(false);
             setCertData({ id: '', name: '', course: '', year: '', grade: '' });
 
-            alert(
-                `🔥 CERTIFICATE ISSUED & SAVED!\n\n` +
-                `1. Student Data has been successfully saved to your Database!\n` +
-                `2. File hashed securely off-chain via IPFS CID: ${mockIpfsCID}\n` +
-                `3. Blockchain transaction sent to Polygon Amoy to finalize issuing on network.\n\n` +
-                `It is now permanently secured and verifiable!`
-            );
-
             setGeneratedCert({
                 id: certData.id,
                 name: certData.name,
@@ -129,7 +123,7 @@ const AdminPortal = () => {
                 hash: newTx.id,
                 ipfsCid: mockIpfsCID
             });
-            setShowGeneratedPDF(true);
+            setShowGeneratedPDF(false); // We now use the inline success box
         } catch (error) {
             console.error("Database Error:", error);
             setIsIssuing(false);
@@ -220,7 +214,7 @@ const AdminPortal = () => {
                                         />
                                     </div>
                                     <div className="md:col-span-2 mt-4">
-                                        <button type="submit" className="btn btn-primary w-full justify-center">
+                                        <button type="submit" disabled={isIssuing} className="btn btn-primary w-full justify-center">
                                             {isIssuing ? (
                                                 <span className="flex items-center gap-2">
                                                     <Loader2 className="animate-spin" size={18} /> Confirming on Chain...
@@ -233,6 +227,22 @@ const AdminPortal = () => {
                                         </button>
                                     </div>
                                 </form>
+
+                                {generatedCert && (
+                                    <div className="mt-6 p-6 bg-green-500/10 border border-green-500/30 rounded-2xl flex flex-col items-center text-center">
+                                        <CheckCircle2 size={40} className="text-green-400 mb-3" />
+                                        <h3 className="text-xl font-bold text-white mb-2">Certificate Issued Successfully!</h3>
+                                        <p className="text-slate-400 text-sm mb-6">Secured on Polygon blockchain. The official PDF is ready.</p>
+                                        <button
+                                            onClick={downloadPDF}
+                                            disabled={isDownloading}
+                                            className="btn btn-primary w-full max-w-sm flex items-center justify-center gap-2 py-3"
+                                        >
+                                            {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                                            {isDownloading ? 'Generating PDF...' : 'Download Certificate PDF'}
+                                        </button>
+                                    </div>
+                                )}
                             </motion.div>
                         ) : (
                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass p-8">
@@ -324,6 +334,47 @@ const AdminPortal = () => {
                 </div>
             )}
 
+            {/* HIDDEN TEMPLATE FOR INLINE DOWNLOAD */}
+            {generatedCert && (
+                <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', zIndex: -1 }}>
+                    <div
+                        id="hidden-certificate-preview"
+                        className="bg-slate-900 border-[8px] border-violet-600/30 p-12 relative flex flex-col items-center justify-center text-center overflow-hidden"
+                        style={{ width: '842px', height: '595px' }}
+                    >
+                        <div className="absolute top-0 left-0 w-64 h-64 bg-violet-600/20 blur-[100px] rounded-full mix-blend-screen" />
+                        <div className="absolute bottom-0 right-0 w-64 h-64 bg-fuchsia-600/20 blur-[100px] rounded-full mix-blend-screen" />
+
+                        <div className="flex-1 flex flex-col justify-center items-center relative z-10 w-full">
+                            <h1 className="text-4xl font-black uppercase tracking-widest text-violet-400 mb-8 border-b-2 border-violet-500/30 pb-4 w-full">
+                                TrustCert Authenticated
+                            </h1>
+                            <p className="text-slate-400 text-lg mb-2">This is to certify that</p>
+                            <h2 className="text-6xl font-black text-white mb-6 uppercase">{generatedCert.name}</h2>
+                            <p className="text-slate-400 text-lg mb-2">has successfully completed</p>
+                            <h3 className="text-3xl font-bold text-fuchsia-400 mb-6">{generatedCert.course}</h3>
+                            <div className="flex gap-8 text-center mt-4">
+                                <div><p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Year</p><p className="text-xl font-bold text-white">{generatedCert.year}</p></div>
+                                <div><p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Final Grade</p><p className="text-xl font-bold text-white">{generatedCert.grade}</p></div>
+                            </div>
+                        </div>
+
+                        <div className="w-full flex justify-between items-end border-t border-slate-700/50 pt-6 mt-8 relative z-10">
+                            <div className="text-left text-xs bg-slate-950/50 p-3 rounded-lg border border-slate-800/50 block">
+                                <p className="text-slate-500 font-bold uppercase tracking-widest mb-1">Blockchain Hash / TX</p>
+                                <p className="text-violet-400 font-mono text-[10px] break-all w-64">{generatedCert.hash}</p>
+                                <p className="text-slate-500 font-bold uppercase tracking-widest mt-2 mb-1">IPFS Storage CID</p>
+                                <p className="text-fuchsia-400 font-mono text-[10px] break-all w-64">{generatedCert.ipfsCid}</p>
+                            </div>
+                            <div className="flex flex-col items-center bg-white p-2 rounded-xl">
+                                <QRCodeSVG value={generatedCert.id} size={90} bgColor="#ffffff" fgColor="#0f172a" />
+                                <p className="text-slate-900 font-mono text-[8px] mt-1 font-bold">SCAN TO VERIFY</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <AnimatePresence>
                 {isHistoryModalOpen && (
                     <motion.div
@@ -356,85 +407,7 @@ const AdminPortal = () => {
                     </motion.div>
                 )}
 
-                {showGeneratedPDF && generatedCert && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.95, y: 20 }}
-                            className="w-full max-w-4xl relative flex flex-col items-center"
-                        >
-                            <button
-                                onClick={() => setShowGeneratedPDF(false)}
-                                className="absolute -top-12 right-0 text-slate-400 hover:text-white"
-                            >
-                                <X size={32} />
-                            </button>
 
-                            {/* Certificate Preview Visual */}
-                            <div
-                                id="certificate-preview"
-                                className="w-full aspect-[1.414/1] bg-slate-900 border-[8px] border-violet-600/30 p-12 relative flex flex-col items-center justify-center text-center overflow-hidden"
-                                style={{ width: '842px', height: '595px', maxWidth: '100%', maxHeight: 'calc(100vh - 150px)', transform: 'scale(1)', transformOrigin: 'top center' }}
-                            >
-                                {/* Decorative elements */}
-                                <div className="absolute top-0 left-0 w-64 h-64 bg-violet-600/20 blur-[100px] rounded-full mix-blend-screen" />
-                                <div className="absolute bottom-0 right-0 w-64 h-64 bg-fuchsia-600/20 blur-[100px] rounded-full mix-blend-screen" />
-
-                                <div className="flex-1 flex flex-col justify-center items-center relative z-10 w-full">
-                                    <h1 className="text-4xl font-black uppercase tracking-widest text-violet-400 mb-8 border-b-2 border-violet-500/30 pb-4 w-full">
-                                        TrustCert Authenticated
-                                    </h1>
-                                    <p className="text-slate-400 text-lg mb-2">This is to certify that</p>
-                                    <h2 className="text-6xl font-black text-white mb-6 uppercase">
-                                        {generatedCert.name}
-                                    </h2>
-                                    <p className="text-slate-400 text-lg mb-2">has successfully completed</p>
-                                    <h3 className="text-3xl font-bold text-fuchsia-400 mb-6">
-                                        {generatedCert.course}
-                                    </h3>
-                                    <div className="flex gap-8 text-center mt-4">
-                                        <div>
-                                            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Year</p>
-                                            <p className="text-xl font-bold">{generatedCert.year}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Final Grade</p>
-                                            <p className="text-xl font-bold">{generatedCert.grade}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex justify-between items-end border-t border-slate-700/50 pt-6 mt-8 relative z-10">
-                                    <div className="text-left text-xs bg-slate-950/50 p-3 rounded-lg border border-slate-800/50 block">
-                                        <p className="text-slate-500 font-bold uppercase tracking-widest mb-1">Blockchain Hash / TX</p>
-                                        <p className="text-violet-400 font-mono text-[10px] break-all w-64">{generatedCert.hash}</p>
-                                        <p className="text-slate-500 font-bold uppercase tracking-widest mt-2 mb-1">IPFS Storage CID</p>
-                                        <p className="text-fuchsia-400 font-mono text-[10px] break-all w-64">{generatedCert.ipfsCid}</p>
-                                        <p className="text-slate-400 mt-2 font-mono">Issued via: {account || "0x_Mock_Institution"}</p>
-                                    </div>
-
-                                    <div className="flex flex-col items-center bg-white p-2 rounded-xl">
-                                        <QRCodeSVG value={generatedCert.id} size={90} bgColor="#ffffff" fgColor="#0f172a" />
-                                        <p className="text-slate-900 font-mono text-[8px] mt-1 font-bold">SCAN TO VERIFY</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={downloadPDF}
-                                className="btn btn-primary mt-8 px-12 py-4 text-lg font-black tracking-wider uppercase"
-                            >
-                                <Save className="mr-2" /> Download Official PDF
-                            </button>
-                        </motion.div>
-                    </motion.div>
-                )}
             </AnimatePresence>
         </div>
     );
