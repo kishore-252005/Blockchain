@@ -341,13 +341,19 @@ const VerificationPortal = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto py-10">
-            <div className="text-center mb-12">
-                <h2 className="text-4xl font-black mb-4">Verification Portal</h2>
-                <p className="text-slate-400">Instantly verify certificates by ID, uploaded PDF, or live QR camera scan.</p>
+        <div className="max-w-6xl mx-auto py-10 relative">
+            {/* Background decorative blobs */}
+            <div className="absolute top-10 left-10 w-72 h-72 bg-violet-600/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute top-40 right-10 w-80 h-80 bg-fuchsia-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+            <div className="text-center mb-14 relative z-10">
+                <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
+                    Certificate <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Verification</span>
+                </h2>
+                <p className="text-slate-400 text-lg">Instantly verify certificates by ID, uploaded PDF, or live QR camera scan.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* ── Mode Tabs ── */}
@@ -357,7 +363,7 @@ const VerificationPortal = () => {
                             const active = activeMode === m.id;
                             return (
                                 <button key={m.id} onClick={() => { setActiveMode(m.id); setScannerDone(false); setResult(null); }}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-bold transition-all duration-200 ${active ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}>
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-3 rounded-xl text-sm font-bold transition-all duration-300 ${active ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]' : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:shadow-inner'}`}>
                                     <Icon size={16} />
                                     <span className="hidden sm:inline">{m.label}</span>
                                 </button>
@@ -378,25 +384,25 @@ const VerificationPortal = () => {
                                     <p className="text-slate-500 text-xs mb-6">
                                         Enter the certificate ID (e.g. <span className="text-violet-400 font-mono">IITB-2023-001</span>), student name, or any reference code.
                                     </p>
-                                    <form onSubmit={handleIdSubmit} className="space-y-3">
-                                        <div className="relative">
-                                            <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-                                            <input className="input pl-10" placeholder="Certificate ID (e.g. IITB-2023-001)"
+                                    <form onSubmit={handleIdSubmit} className="space-y-4">
+                                        <div className="relative group">
+                                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                                            <input className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all placeholder:text-slate-600" placeholder="Certificate ID (e.g. IITB-2023-001)"
                                                 value={certId} onChange={e => setCertId(e.target.value)} />
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex-1 h-px bg-slate-800" />
-                                            <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">or search by name</span>
-                                            <div className="flex-1 h-px bg-slate-800" />
+                                        <div className="flex items-center gap-3 py-1">
+                                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+                                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">or search by name</span>
+                                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
                                         </div>
-                                        <div className="relative">
-                                            <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-                                            <input className="input pl-10" placeholder="Student full name (e.g. Rahul Sharma)"
+                                        <div className="relative group">
+                                            <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-fuchsia-400 transition-colors" />
+                                            <input className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-fuchsia-500/50 focus:ring-1 focus:ring-fuchsia-500/50 transition-all placeholder:text-slate-600" placeholder="Student full name (e.g. Rahul Sharma)"
                                                 value={nameInput} onChange={e => setNameInput(e.target.value)} />
                                         </div>
                                         <button type="submit" disabled={loading || (!certId.trim() && !nameInput.trim())}
-                                            className="btn btn-primary w-full justify-center py-3.5 font-black uppercase tracking-widest text-sm">
-                                            {loading ? <><Loader2 size={16} className="animate-spin" /> Verifying...</> : <><ShieldCheck size={16} /> Verify Certificate</>}
+                                            className="w-full mt-2 relative overflow-hidden group bg-gradient-to-r from-violet-600 to-fuchsia-600 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] disabled:shadow-none">
+                                            {loading ? <><Loader2 size={18} className="animate-spin" /> Verifying...</> : <><ShieldCheck size={18} /> Verify Certificate</>}
                                         </button>
                                     </form>
                                     {scannerDone && (
