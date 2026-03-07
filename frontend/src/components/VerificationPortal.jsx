@@ -277,13 +277,14 @@ const VerificationPortal = () => {
             setRecentVerifications(prev => [{ name: cert.name, status: 'Valid', time: 'JUST NOW' }, ...prev.slice(0, 4)]);
         } catch {
             // Fallback demo
-            if (id.toLowerCase().includes('iitb') || id.startsWith('0x') || id === 'IITB-0X9F2A') {
+            if (id.toLowerCase().includes('iitb') || id.startsWith('0x') || id.toLowerCase().includes('rahul sharma')) {
+                const isNameSearch = !id.toLowerCase().includes('iitb') && !id.startsWith('0x');
                 setResult({
                     status: 'authentic', fromDB: false,
                     student: 'Rahul Sharma', degree: 'Bachelor of Technology', major: 'Computer Science',
                     institution: 'IIT Bombay', issued: '2023', grade: 'A+',
                     hash: '0x7d2f4a1c8b9e0d3f2a1b5c4d3e2f1a0b9c8d7e6f', block: '4208129',
-                    timestamp: '2023-06-15 14:30:12 UTC', certId: id,
+                    timestamp: '2023-06-15 14:30:12 UTC', certId: isNameSearch ? 'IITB-2023-001' : id,
                 });
                 setRecentVerifications(prev => [{ name: 'Rahul Sharma', status: 'Valid', time: 'JUST NOW' }, ...prev.slice(0, 4)]);
             } else {

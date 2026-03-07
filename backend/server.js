@@ -140,7 +140,12 @@ app.get('/api/certificates/:id', (req, res) => {
     const db = readDB();
     if (!db.verifications) db.verifications = [];
 
-    const cert = db.certificates.find(c => c.id === req.params.id);
+    const searchQuery = req.params.id.toLowerCase();
+    const cert = db.certificates.find(c =>
+        (c.id && c.id.toLowerCase() === searchQuery) ||
+        (c.name && c.name.toLowerCase() === searchQuery)
+    );
+
     if (!cert) return res.status(404).json({ error: "Certificate not found." });
 
     db.verifications.push({
