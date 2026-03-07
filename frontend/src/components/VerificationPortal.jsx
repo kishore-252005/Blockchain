@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, QrCode, ShieldCheck, AlertTriangle, User, Calendar, BookOpen,
     MapPin, Clock, ExternalLink, Activity, X, Download, Database, Briefcase,
-    FileText, Upload, Camera, CheckCircle2, Loader2, ScanLine, RefreshCw
+    FileText, Upload, Camera, CheckCircle2, Loader2, ScanLine, RefreshCw,
+    Fingerprint, BadgeCheck, Contact
 } from 'lucide-react';
 import axios from 'axios';
 import { QRCodeSVG } from 'qrcode.react';
