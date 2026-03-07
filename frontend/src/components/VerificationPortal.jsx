@@ -13,9 +13,9 @@ import jsPDF from 'jspdf';
 
 /* ─── Verification mode tabs ─────────────────────────────────────── */
 const MODES = [
-    { id: 'id', label: 'By ID / Name', icon: Search, desc: 'Enter certificate ID, student name or code' },
-    { id: 'pdf', label: 'Upload PDF', icon: FileText, desc: 'Upload a certificate PDF to extract & verify' },
-    { id: 'qr', label: 'Camera Scanner', icon: Camera, desc: 'Scan QR code with device camera' },
+    { id: 'id', label: 'Verify by ID', icon: Search, desc: 'Enter certificate ID, student name or code' },
+    { id: 'pdf', label: 'Verify a PDF', icon: FileText, desc: 'Upload a certificate PDF to extract & verify' },
+    { id: 'qr', label: 'Scan', icon: Camera, desc: 'Scan QR code with device camera' },
 ];
 
 /* ─── Recent item row ─────────────────────────────────────────────── */
@@ -361,15 +361,15 @@ const VerificationPortal = ({ user }) => {
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* ── Mode Tabs ── */}
-                    <div className="glass p-2 flex gap-2 rounded-2xl">
+                    <div className="flex gap-4 mb-6">
                         {MODES.map(m => {
                             const Icon = m.icon;
                             const active = activeMode === m.id;
                             return (
                                 <button key={m.id} onClick={() => { setActiveMode(m.id); setScannerDone(false); setResult(null); }}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-lg text-sm font-semibold transition-colors ${active ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-2 border-4 border-black font-black uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${active ? 'bg-black text-white translate-y-1 translate-x-1 shadow-none' : 'bg-white text-black hover:bg-yellow-400'}`}>
                                     <Icon size={16} />
-                                    <span className="hidden sm:inline">{m.label}</span>
+                                    <span>{m.label}</span>
                                 </button>
                             );
                         })}
@@ -581,18 +581,18 @@ const VerificationPortal = ({ user }) => {
                         </h4>
                         <div className="space-y-5">
                             {[
-                                { num: '1', title: 'By ID', text: 'Enter cert ID from email' },
-                                { num: '2', title: 'By Name', text: `Enter ${user?.role === 'organization' ? 'candidate\'s' : 'student\'s'} full name` },
-                                { num: '3', title: 'Upload PDF', text: 'Drop the certificate PDF' },
-                                { num: '4', title: 'Scan QR', text: 'Scan the printed code' },
-                            ].map(({ num, title, text }) => (
-                                <div key={num} className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
-                                        <span className="text-xs font-bold text-violet-400">{num}</span>
+                                { icon: Search, title: 'By ID', text: 'Enter cert ID from email' },
+                                { icon: Contact, title: 'By Name', text: `Enter ${user?.role === 'organization' ? 'candidate\'s' : 'student\'s'} full name` },
+                                { icon: FileText, title: 'Verify a PDF', text: 'Drop the certificate PDF' },
+                                { icon: Camera, title: 'Scan', text: 'Scan the printed code' },
+                            ].map(({ icon: Icon, title, text }, index) => (
+                                <div key={index} className="flex items-center gap-4">
+                                    <div className="w-8 h-8 bg-white border-2 border-black flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        <Icon size={14} className="text-black font-black" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-semibold text-white mb-0.5">{title}</p>
-                                        <p className="text-xs text-slate-400">{text}</p>
+                                        <p className="text-sm font-black text-white uppercase tracking-wider mb-0.5">{title}</p>
+                                        <p className="text-xs text-slate-400 font-bold">{text}</p>
                                     </div>
                                 </div>
                             ))}
