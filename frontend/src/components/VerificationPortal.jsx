@@ -251,8 +251,57 @@ const PdfUploader = ({ onExtracted, loading }) => {
 };
 
 /* ─── Main Verification Portal ───────────────────────────────────── */
+
+const THEMES = {
+    bright: {
+        id: 'bright', name: 'Bright & Clean',
+        container: 'bg-white border border-slate-200 text-slate-900 shadow-xl rounded-2xl',
+        title: 'text-2xl font-bold text-slate-900',
+        subtitle: 'text-slate-500 text-[15px]',
+        input: 'bg-slate-50 border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 rounded-xl',
+        icon: 'text-slate-400 group-focus-within:text-blue-500',
+        divider: 'bg-slate-200',
+        dividerText: 'text-slate-400 font-bold uppercase tracking-widest',
+        button: 'bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md font-bold text-lg',
+    },
+    cyberpunk: {
+        id: 'cyberpunk', name: 'Neon Cyberpunk',
+        container: 'bg-black border border-cyan-500/50 text-cyan-50 shadow-[0_0_20px_rgba(6,182,212,0.2)] rounded-sm',
+        title: 'text-2xl font-mono font-bold text-pink-500 tracking-wider uppercase',
+        subtitle: 'text-cyan-400/80 font-mono text-sm uppercase max-w-xl',
+        input: 'bg-black border border-pink-500/50 text-cyan-300 font-mono focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 rounded-sm placeholder:text-pink-900',
+        icon: 'text-pink-500 group-focus-within:text-cyan-400',
+        divider: 'bg-pink-500/30',
+        dividerText: 'text-pink-500 font-mono uppercase tracking-widest',
+        button: 'bg-transparent border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-mono font-bold tracking-widest uppercase rounded-sm transition-all shadow-[0_0_10px_rgba(6,182,212,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] text-lg',
+    },
+    glass: {
+        id: 'glass', name: 'Soft Glass',
+        container: 'bg-slate-900/60 backdrop-blur-xl border border-white/10 text-white shadow-2xl rounded-3xl',
+        title: 'text-2xl font-bold text-white',
+        subtitle: 'text-slate-400 text-[15px]',
+        input: 'bg-white/5 border border-white/10 text-white focus:border-fuchsia-500 focus:ring-4 focus:ring-fuchsia-500/20 rounded-2xl placeholder:text-slate-500',
+        icon: 'text-slate-500 group-focus-within:text-fuchsia-400',
+        divider: 'bg-white/10',
+        dividerText: 'text-slate-400 font-bold uppercase tracking-widest',
+        button: 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-2xl shadow-[0_4px_20px_rgba(124,58,237,0.3)] font-bold text-lg',
+    },
+    brutalist: {
+        id: 'brutalist', name: 'Simple & Brutalist',
+        container: 'bg-yellow-400 border-4 border-black text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none',
+        title: 'text-3xl font-black text-black uppercase tracking-tighter',
+        subtitle: 'text-black font-bold uppercase text-sm max-w-xl',
+        input: 'bg-white border-4 border-black text-black font-bold focus:ring-0 focus:outline-none focus:-translate-y-1 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none transition-transform placeholder:text-black/50',
+        icon: 'text-black',
+        divider: 'bg-black',
+        dividerText: 'text-black font-black uppercase text-xs',
+        button: 'bg-white hover:bg-black hover:text-white border-4 border-black text-black font-black uppercase tracking-widest rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all text-lg',
+    }
+};
+
 const VerificationPortal = ({ user }) => {
     const [activeMode, setActiveMode] = useState('id');
+    const [currentStyle, setCurrentStyle] = useState('glass');
     const [certId, setCertId] = useState('');
     const [nameInput, setNameInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -374,86 +423,104 @@ const VerificationPortal = ({ user }) => {
                         })}
                     </div>
 
+                    {/* ── Theme Switcher ── */}
+                    {activeMode === 'id' && (
+                        <div className="flex flex-wrap items-center gap-3 mb-2 px-2">
+                            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Select Theme:</span>
+                            {Object.values(THEMES).map(t => (
+                                <button key={t.id} onClick={() => setCurrentStyle(t.id)}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${currentStyle === t.id
+                                        ? 'bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-500/20'
+                                        : 'bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white'
+                                        }`}>
+                                    {t.name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
                     {/* ── Input Area ── */}
-                    <div className="glass p-8">
-                        <AnimatePresence mode="wait">
+                    <div className={activeMode === 'id' ? THEMES[currentStyle].container : "glass p-8"}>
+                        <div className={`${activeMode === 'id' ? 'p-8' : ''}`}>
+                            <AnimatePresence mode="wait">
 
-                            {/* BY ID / NAME */}
-                            {activeMode === 'id' && (
-                                <motion.div key="id-mode" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
-                                    <h3 className="text-2xl font-black mb-2 flex items-center gap-3 text-white tracking-tight">
-                                        <BadgeCheck className="text-violet-400" size={24} /> Verify by ID, Name, or Code
-                                    </h3>
-                                    <p className="text-slate-400 text-[15px] mb-8 leading-relaxed">
-                                        Enter the certificate ID, {user?.role === 'organization' ? 'candidate' : 'student'} name, or any reference code.
-                                    </p>
-                                    <form onSubmit={handleIdSubmit} className="space-y-6">
-                                        <div className="relative group">
-                                            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-violet-400 transition-colors">
-                                                <Fingerprint size={22} />
+                                {/* BY ID / NAME */}
+                                {activeMode === 'id' && (
+                                    <motion.div key="id-mode" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
+                                        <h3 className={`${THEMES[currentStyle].title} mb-2 flex items-center gap-3 tracking-tight`}>
+                                            <BadgeCheck className={currentStyle === 'brutalist' ? 'text-black' : "text-violet-400"} size={28} /> Verify by ID, Name, or Code
+                                        </h3>
+                                        <p className={`${THEMES[currentStyle].subtitle} mb-8 leading-relaxed`}>
+                                            Enter the certificate ID, {user?.role === 'organization' ? 'candidate' : 'student'} name, or any reference code.
+                                        </p>
+                                        <form onSubmit={handleIdSubmit} className="space-y-6">
+                                            <div className="relative group">
+                                                <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors ${THEMES[currentStyle].icon}`}>
+                                                    <Fingerprint size={22} />
+                                                </div>
+                                                <input className={`w-full py-5 pl-14 pr-5 transition-all outline-none ${THEMES[currentStyle].input} ${currentStyle === 'glass' || currentStyle === 'bright' ? 'text-lg' : 'text-xl'}`} placeholder="CERTIFICATE ID (e.g. IITB-2023-001)"
+                                                    value={certId} onChange={e => setCertId(e.target.value)} />
                                             </div>
-                                            <input className="w-full bg-slate-950/40 border-2 border-slate-800 hover:border-slate-700 rounded-2xl py-5 pl-14 pr-5 text-lg text-violet-100 font-mono tracking-[0.15em] focus:outline-none focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all shadow-inner placeholder:text-slate-600 placeholder:font-sans placeholder:tracking-normal placeholder:text-sm" placeholder="CERTIFICATE ID (e.g. IITB-2023-001)"
-                                                value={certId} onChange={e => setCertId(e.target.value)} />
-                                        </div>
 
-                                        <div className="flex items-center gap-4 py-2 opacity-60">
-                                            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-slate-600" />
-                                            <span className="text-[11px] text-slate-400 font-black uppercase tracking-[0.25em]">or search by name</span>
-                                            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-slate-600" />
-                                        </div>
-
-                                        <div className="relative group">
-                                            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-violet-400 transition-colors">
-                                                <Contact size={22} />
+                                            <div className="flex items-center gap-4 py-2 opacity-80">
+                                                <div className={`flex-1 ${currentStyle === 'brutalist' ? THEMES[currentStyle].divider : `h-px ${THEMES[currentStyle].divider}`}`} />
+                                                <span className={`text-[11px] ${THEMES[currentStyle].dividerText}`}>or search by name</span>
+                                                <div className={`flex-1 ${currentStyle === 'brutalist' ? THEMES[currentStyle].divider : `h-px ${THEMES[currentStyle].divider}`}`} />
                                             </div>
-                                            <input className="w-full bg-slate-950/40 border-2 border-slate-800 hover:border-slate-700 rounded-2xl py-5 pl-14 pr-5 text-lg text-white font-serif italic tracking-wide focus:outline-none focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all shadow-inner placeholder:text-slate-600 placeholder:font-sans placeholder:italic-none placeholder:tracking-normal placeholder:text-sm" placeholder={`${user?.role === 'organization' ? 'Candidate' : 'Student'} full name (e.g. Rahul Sharma)`}
-                                                value={nameInput} onChange={e => setNameInput(e.target.value)} />
-                                        </div>
 
-                                        <button type="submit" disabled={loading || (!certId.trim() && !nameInput.trim())}
-                                            className="w-full mt-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-lg tracking-wide py-5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-[0_4px_20px_rgba(124,58,237,0.4)] hover:shadow-[0_8px_30px_rgba(124,58,237,0.6)] hover:-translate-y-1">
-                                            {loading ? <><Loader2 size={22} className="animate-spin" /> Verifying Records...</> : <><ShieldCheck size={24} /> Verify Authenticity</>}
-                                        </button>
-                                    </form>
-                                    {scannerDone && (
-                                        <div className="mt-4 flex items-center gap-2 text-violet-400 text-xs font-bold">
-                                            <CheckCircle2 size={13} /> QR scanned: <span className="font-mono">{certId}</span>
-                                        </div>
-                                    )}
-                                </motion.div>
-                            )}
+                                            <div className="relative group">
+                                                <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors ${THEMES[currentStyle].icon}`}>
+                                                    <Contact size={22} />
+                                                </div>
+                                                <input className={`w-full py-5 pl-14 pr-5 transition-all outline-none ${THEMES[currentStyle].input} ${currentStyle === 'glass' ? 'font-serif italic tracking-wide text-lg' : currentStyle === 'bright' ? 'text-lg' : 'text-xl'}`} placeholder={`${user?.role === 'organization' ? 'Candidate' : 'Student'} full name (e.g. Rahul Sharma)`}
+                                                    value={nameInput} onChange={e => setNameInput(e.target.value)} />
+                                            </div>
 
-                            {/* PDF UPLOAD */}
-                            {activeMode === 'pdf' && (
-                                <motion.div key="pdf-mode" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
-                                    <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
-                                        <FileText className="text-violet-400" size={18} /> Verify by PDF
-                                    </h3>
-                                    <p className="text-slate-500 text-xs mb-6">
-                                        Upload a TrustCert certificate PDF — we'll automatically extract the ID and verify it on-chain.
-                                    </p>
-                                    <PdfUploader onExtracted={handlePDFExtracted} loading={loading} />
-                                    {loading && (
-                                        <div className="mt-4 flex items-center gap-2 text-violet-400 text-sm font-bold">
-                                            <Loader2 size={16} className="animate-spin" /> Verifying extracted data...
-                                        </div>
-                                    )}
-                                </motion.div>
-                            )}
+                                            <button type="submit" disabled={loading || (!certId.trim() && !nameInput.trim())}
+                                                className={`w-full mt-6 py-5 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${THEMES[currentStyle].button}`}>
+                                                {loading ? <><Loader2 size={24} className="animate-spin" /> Verifying Records...</> : <><ShieldCheck size={26} /> Verify Authenticity</>}
+                                            </button>
+                                        </form>
+                                        {scannerDone && (
+                                            <div className="mt-4 flex items-center gap-2 text-violet-400 text-xs font-bold">
+                                                <CheckCircle2 size={13} /> QR scanned: <span className="font-mono">{certId}</span>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
 
-                            {/* CAMERA QR */}
-                            {activeMode === 'qr' && (
-                                <motion.div key="qr-mode" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
-                                    <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
-                                        <Camera className="text-violet-400" size={18} /> Camera QR Scanner
-                                    </h3>
-                                    <p className="text-slate-500 text-xs mb-6">
-                                        Point your camera at the QR code printed on any TrustCert certificate PDF.
-                                    </p>
-                                    <LiveQRScanner onFound={handleQRFound} onClose={() => setActiveMode('id')} />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                                {/* PDF UPLOAD */}
+                                {activeMode === 'pdf' && (
+                                    <motion.div key="pdf-mode" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
+                                        <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                                            <FileText className="text-violet-400" size={18} /> Verify by PDF
+                                        </h3>
+                                        <p className="text-slate-500 text-xs mb-6">
+                                            Upload a TrustCert certificate PDF — we'll automatically extract the ID and verify it on-chain.
+                                        </p>
+                                        <PdfUploader onExtracted={handlePDFExtracted} loading={loading} />
+                                        {loading && (
+                                            <div className="mt-4 flex items-center gap-2 text-violet-400 text-sm font-bold">
+                                                <Loader2 size={16} className="animate-spin" /> Verifying extracted data...
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
+
+                                {/* CAMERA QR */}
+                                {activeMode === 'qr' && (
+                                    <motion.div key="qr-mode" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
+                                        <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                                            <Camera className="text-violet-400" size={18} /> Camera QR Scanner
+                                        </h3>
+                                        <p className="text-slate-500 text-xs mb-6">
+                                            Point your camera at the QR code printed on any TrustCert certificate PDF.
+                                        </p>
+                                        <LiveQRScanner onFound={handleQRFound} onClose={() => setActiveMode('id')} />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
 
                     {/* ── Result: Authentic ── */}
