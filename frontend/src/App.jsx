@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate,
 import { Shield, Wallet, Menu, X, ChevronRight, Activity, Globe, LogOut, GraduationCap, Briefcase, BarChart2, Search, Settings, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import Hero from './components/Hero';
+import Hero from './components/Hero'; // Optionally kept if needed later, but we will use VerificationPortal for root
 import AdminPortal from './components/AdminPortal';
 import GraduateWallet from './components/GraduateWallet';
 import VerificationPortal from './components/VerificationPortal';
@@ -45,11 +45,11 @@ const Navbar = () => {
     { name: 'Analytics', path: '/analytics', icon: BarChart2 },
   ];
   const organizationLinks = [
-    { name: 'Verify', path: '/verify', icon: Search },
+    { name: 'Verify', path: '/', icon: Search },
     { name: 'Graduate Wallet', path: '/graduate', icon: Wallet },
   ];
 
-  const navLinks = !user ? [] : user.role === 'institution' ? institutionLinks : organizationLinks;
+  const navLinks = !user ? [{ name: 'Verify', path: '/', icon: Search }] : user.role === 'institution' ? institutionLinks : organizationLinks;
 
   const handleLogout = () => { logout(); navigate('/'); };
 
@@ -58,7 +58,7 @@ const Navbar = () => {
 
   return (
     <nav className="glass sticky top-4 z-50 mx-4 my-6 py-4 px-8 flex items-center justify-between border-white/5">
-      <Link to={user ? (user.role === 'institution' ? '/admin' : '/verify') : '/'} className="flex items-center gap-2 group no-underline">
+      <Link to={user?.role === 'institution' ? '/admin' : '/'} className="flex items-center gap-2 group no-underline">
         <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
           <Shield className="text-white" size={24} />
         </div>
@@ -163,7 +163,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
   if (!user) return <Navigate to="/login" replace />;
   if (allowedRole && user.role !== allowedRole) {
     // Redirect to the right dashboard
-    const home = user.role === 'institution' ? '/admin' : '/verify';
+    const home = user.role === 'institution' ? '/admin' : '/';
     return <Navigate to={home} replace />;
   }
   return children;
@@ -183,7 +183,7 @@ const AppRoutes = () => {
 
   const handleAuthSuccess = (userData) => {
     if (userData.role === 'institution') navigate('/admin');
-    else navigate('/verify');
+    else navigate('/');
   };
 
   return (
@@ -194,12 +194,12 @@ const AppRoutes = () => {
         <main className="px-4">
           <Routes>
             {/* Public */}
-            <Route path="/" element={user
-              ? <Navigate to={user.role === 'institution' ? '/admin' : '/verify'} replace />
-              : <Hero />}
+            <Route path="/" element={user?.role === 'institution'
+              ? <Navigate to="/admin" replace />
+              : <VerificationPortal user={user} />}
             />
             <Route path="/login" element={user
-              ? <Navigate to={user.role === 'institution' ? '/admin' : '/verify'} replace />
+              ? <Navigate to={user.role === 'institution' ? '/admin' : '/'} replace />
               : <AuthPage onSuccess={handleAuthSuccess} />}
             />
 
@@ -215,12 +215,7 @@ const AppRoutes = () => {
               </ProtectedRoute>
             } />
 
-            {/* Organisation only */}
-            <Route path="/verify" element={
-              <ProtectedRoute allowedRole="organization">
-                <VerificationPortal user={user} />
-              </ProtectedRoute>
-            } />
+            {/* Organisation/Graduate only */}
             <Route path="/graduate" element={
               <ProtectedRoute allowedRole="organization">
                 <GraduateWallet account={account} />
