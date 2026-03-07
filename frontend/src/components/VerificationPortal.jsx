@@ -341,19 +341,15 @@ const VerificationPortal = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto py-10 relative">
-            {/* Background decorative blobs */}
-            <div className="absolute top-10 left-10 w-72 h-72 bg-violet-600/10 rounded-full blur-[100px] pointer-events-none" />
-            <div className="absolute top-40 right-10 w-80 h-80 bg-fuchsia-600/10 rounded-full blur-[120px] pointer-events-none" />
-
-            <div className="text-center mb-14 relative z-10">
-                <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
-                    Certificate <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Verification</span>
+        <div className="max-w-6xl mx-auto py-10">
+            <div className="text-center mb-10">
+                <h2 className="text-4xl font-bold mb-3 text-white">
+                    Certificate Verification
                 </h2>
-                <p className="text-slate-400 text-lg">Instantly verify certificates by ID, uploaded PDF, or live QR camera scan.</p>
+                <p className="text-slate-400 text-base">Instantly verify certificates by ID, uploaded PDF, or live QR camera scan.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* ── Mode Tabs ── */}
@@ -363,7 +359,7 @@ const VerificationPortal = () => {
                             const active = activeMode === m.id;
                             return (
                                 <button key={m.id} onClick={() => { setActiveMode(m.id); setScannerDone(false); setResult(null); }}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-3 rounded-xl text-sm font-bold transition-all duration-300 ${active ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]' : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:shadow-inner'}`}>
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-lg text-sm font-semibold transition-colors ${active ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
                                     <Icon size={16} />
                                     <span className="hidden sm:inline">{m.label}</span>
                                 </button>
@@ -378,31 +374,31 @@ const VerificationPortal = () => {
                             {/* BY ID / NAME */}
                             {activeMode === 'id' && (
                                 <motion.div key="id-mode" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
-                                    <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                                    <h3 className="text-lg font-semibold mb-1 flex items-center gap-2">
                                         <Search className="text-violet-400" size={18} /> Verify by ID, Name, or Code
                                     </h3>
-                                    <p className="text-slate-500 text-xs mb-6">
-                                        Enter the certificate ID (e.g. <span className="text-violet-400 font-mono">IITB-2023-001</span>), student name, or any reference code.
+                                    <p className="text-slate-400 text-sm mb-6">
+                                        Enter the certificate ID, student name, or any reference code.
                                     </p>
                                     <form onSubmit={handleIdSubmit} className="space-y-4">
-                                        <div className="relative group">
-                                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
-                                            <input className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all placeholder:text-slate-600" placeholder="Certificate ID (e.g. IITB-2023-001)"
+                                        <div className="relative">
+                                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                            <input className="w-full bg-slate-900 border border-slate-700 rounded-lg py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-violet-500 transition-colors" placeholder="Certificate ID (e.g. IITB-2023-001)"
                                                 value={certId} onChange={e => setCertId(e.target.value)} />
                                         </div>
                                         <div className="flex items-center gap-3 py-1">
-                                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+                                            <div className="flex-1 h-px bg-slate-800" />
                                             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">or search by name</span>
-                                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+                                            <div className="flex-1 h-px bg-slate-800" />
                                         </div>
-                                        <div className="relative group">
-                                            <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-fuchsia-400 transition-colors" />
-                                            <input className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl py-3.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-fuchsia-500/50 focus:ring-1 focus:ring-fuchsia-500/50 transition-all placeholder:text-slate-600" placeholder="Student full name (e.g. Rahul Sharma)"
+                                        <div className="relative">
+                                            <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                            <input className="w-full bg-slate-900 border border-slate-700 rounded-lg py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-violet-500 transition-colors" placeholder="Student full name (e.g. Rahul Sharma)"
                                                 value={nameInput} onChange={e => setNameInput(e.target.value)} />
                                         </div>
                                         <button type="submit" disabled={loading || (!certId.trim() && !nameInput.trim())}
-                                            className="w-full mt-2 relative overflow-hidden group bg-gradient-to-r from-violet-600 to-fuchsia-600 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] disabled:shadow-none">
-                                            {loading ? <><Loader2 size={18} className="animate-spin" /> Verifying...</> : <><ShieldCheck size={18} /> Verify Certificate</>}
+                                            className="w-full mt-2 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-800 disabled:text-slate-500 text-white font-semibold text-sm py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                                            {loading ? <><Loader2 size={16} className="animate-spin" /> Verifying...</> : <><ShieldCheck size={16} /> Verify Certificate</>}
                                         </button>
                                     </form>
                                     {scannerDone && (
@@ -449,28 +445,22 @@ const VerificationPortal = () => {
                     {/* ── Result: Authentic ── */}
                     <AnimatePresence mode="wait">
                         {result?.status === 'authentic' && (
-                            <motion.div key="authentic" initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} transition={{ type: 'spring', bounce: 0.4 }}
-                                className="relative overflow-hidden bg-slate-900 border border-slate-800 rounded-3xl p-10 shadow-[0_0_50px_rgba(34,197,94,0.15)] group">
-
-                                {/* Animated Green Glow Background */}
-                                <div className="absolute top-0 right-0 w-96 h-96 bg-green-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-green-500/20 transition-all duration-700" />
-                                <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
-
-                                <div className="absolute top-0 right-0 p-6 opacity-5"><ShieldCheck size={240} className="text-green-500" /></div>
+                            <motion.div key="authentic" initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+                                className="bg-slate-900 border border-green-500/40 rounded-xl p-8 shadow-sm mt-6">
 
                                 {result.fromDB && (
-                                    <div className="flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/30 w-fit backdrop-blur-md shadow-[0_0_15px_rgba(34,197,94,0.2)]">
-                                        <Database size={14} className="text-green-400" />
-                                        <span className="text-green-400 text-[10px] font-black uppercase tracking-[0.2em]">Verified from TrustCert Database</span>
+                                    <div className="flex items-center gap-2 mb-6 px-3 py-1.5 rounded bg-green-500/10 border border-green-500/20 w-fit">
+                                        <Database size={12} className="text-green-500" />
+                                        <span className="text-green-500 text-[10px] font-bold uppercase tracking-wider">Verified from TrustCert Database</span>
                                     </div>
                                 )}
 
-                                <div className="flex items-center gap-5 mb-10 relative z-10">
-                                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-gradient-to-br from-green-400/20 to-emerald-600/20 border border-green-500/30 shadow-inner">
-                                        <ShieldCheck size={44} className="text-green-400" />
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-green-500/10 border border-green-500/20">
+                                        <ShieldCheck size={32} className="text-green-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Certificate Authentic ✓</h3>
+                                        <h3 className="text-2xl font-bold text-green-500">Certificate Authentic</h3>
                                         <p className="text-slate-400 text-sm mt-1">Legally binding digital record on Polygon blockchain</p>
                                     </div>
                                 </div>
@@ -511,29 +501,29 @@ const VerificationPortal = () => {
                                     </div>
                                 </div>
 
-                                <div className="pt-8 border-t border-slate-800 space-y-6 relative z-10 mt-auto">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs bg-slate-950/50 p-5 rounded-2xl border border-slate-800/50">
+                                <div className="pt-6 border-t border-slate-800 space-y-5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm bg-slate-950/50 p-4 rounded-lg border border-slate-800/50">
                                         <div>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-2 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.8)]" /> Cert ID</p>
-                                            <p className="font-mono text-violet-300 font-medium">{result.certId}</p>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Cert ID</p>
+                                            <p className="font-mono text-slate-300">{result.certId}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-2 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-fuchsia-500 shadow-[0_0_10px_rgba(217,70,239,0.8)]" /> Transaction / IPFS Hash</p>
-                                            <p className="font-mono text-fuchsia-300 break-all font-medium">{result.hash}</p>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Transaction Hash</p>
+                                            <p className="font-mono text-slate-300 break-all">{result.hash}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap items-center justify-between gap-4">
-                                        <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
-                                            <Clock size={14} className="text-violet-400" /> Verified at {new Date().toLocaleTimeString()}
+                                        <div className="flex items-center gap-2 text-slate-500 text-xs">
+                                            <Clock size={14} /> Verified at {new Date().toLocaleTimeString()}
                                         </div>
                                         <div className="flex gap-3">
                                             <button onClick={downloadVerificationPDF} disabled={isDownloading}
-                                                className="btn btn-primary bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] text-sm px-6 py-3 rounded-xl flex items-center gap-2">
+                                                className="bg-slate-800 hover:bg-slate-700 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
                                                 {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-                                                {isDownloading ? 'Generating...' : 'Download Verified PDF'}
+                                                {isDownloading ? 'Generating...' : 'Download PDF'}
                                             </button>
                                             <button onClick={() => window.open(`https://amoy.polygonscan.com/tx/${result.hash}`, '_blank')}
-                                                className="px-5 py-3 rounded-xl border border-violet-500/30 text-violet-400 font-bold uppercase tracking-widest text-[11px] flex items-center gap-2 hover:bg-violet-500/10 hover:border-violet-500/50 transition-all">
+                                                className="px-4 py-2 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm flex items-center gap-2">
                                                 PolygonScan <ExternalLink size={14} />
                                             </button>
                                         </div>
@@ -543,21 +533,19 @@ const VerificationPortal = () => {
                         )}
 
                         {result?.status === 'invalid' && (
-                            <motion.div key="invalid" initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-                                className="relative overflow-hidden bg-slate-900 border border-red-500/50 rounded-3xl p-10 shadow-[0_0_50px_rgba(239,68,68,0.15)] group">
+                            <motion.div key="invalid" initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+                                className="bg-slate-900 border border-red-500/40 rounded-xl p-8 shadow-sm mt-6">
 
-                                <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-red-500/20 transition-all duration-700" />
-
-                                <div className="flex items-center gap-5 mb-4 relative z-10">
-                                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-gradient-to-br from-red-500/20 to-orange-600/20 border border-red-500/30 shadow-inner">
-                                        <AlertTriangle size={44} className="text-red-400" />
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-red-500/10 border border-red-500/20">
+                                        <AlertTriangle size={32} className="text-red-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">Invalid Certificate</h3>
-                                        <p className="text-slate-300 text-sm mt-1">This PDF or ID was not issued by a registered education institution.</p>
+                                        <h3 className="text-2xl font-bold text-red-500">Invalid Certificate</h3>
+                                        <p className="text-slate-400 text-sm mt-1">This PDF or ID was not issued by a registered education institution.</p>
                                     </div>
                                 </div>
-                                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 relative z-10 mt-6">
+                                <div className="p-4 rounded-lg bg-red-500/5 border border-red-500/10 mt-6">
                                     <p className="text-slate-400 text-sm">
                                         No matching record was found in our database or on the Polygon blockchain ledger.
                                     </p>
@@ -569,36 +557,34 @@ const VerificationPortal = () => {
 
                 {/* ── Sidebar ── */}
                 <div className="space-y-6 lg:border-l lg:border-slate-800/50 lg:pl-8">
-                    <div className="p-6 bg-slate-900/40 rounded-3xl border border-slate-800/60 backdrop-blur-xl relative overflow-hidden group">
-                        <div className="absolute top-0 left-0 w-32 h-32 bg-violet-500/10 rounded-full blur-[50px] pointer-events-none transition-all duration-700 group-hover:bg-violet-500/20" />
-                        <h4 className="font-black mb-5 tracking-tight flex items-center gap-3 text-lg">
+                    <div className="p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-sm">
+                        <h4 className="font-semibold mb-5 flex items-center gap-2 text-lg text-white">
                             <Activity className="text-violet-400" size={20} /> Recent Verifications
                         </h4>
                         <div className="space-y-3">{recentVerifications.map((v, i) => <RecentRow key={i} {...v} />)}</div>
                         <button onClick={() => setIsLogsOpen(true)}
-                            className="w-full text-center py-4 mt-4 bg-slate-800/30 hover:bg-slate-800 rounded-xl text-[10px] uppercase font-black tracking-[0.2em] text-slate-400 hover:text-violet-400 transition-all border border-slate-700/30 hover:border-violet-500/30">
+                            className="w-full text-center py-3 mt-4 bg-slate-800/50 hover:bg-slate-800 rounded-lg text-xs font-semibold text-slate-300 transition-colors">
                             View All Logs
                         </button>
                     </div>
 
-                    <div className="p-6 bg-slate-900/40 rounded-3xl border border-slate-800/60 backdrop-blur-xl relative overflow-hidden group">
-                        <div className="absolute top-0 left-0 w-32 h-32 bg-fuchsia-500/10 rounded-full blur-[50px] pointer-events-none transition-all duration-700 group-hover:bg-fuchsia-500/20" />
-                        <h4 className="font-black mb-6 tracking-tight flex items-center gap-3 text-lg">
-                            <ScanLine className="text-fuchsia-400" size={20} /> How to Verify
+                    <div className="p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-sm">
+                        <h4 className="font-semibold mb-6 flex items-center gap-2 text-lg text-white">
+                            <ScanLine className="text-violet-400" size={20} /> How to Verify
                         </h4>
                         <div className="space-y-5">
                             {[
-                                { num: '01', title: 'By ID', text: 'Enter cert ID from email' },
-                                { num: '02', title: 'By Name', text: "Enter student's full name" },
-                                { num: '03', title: 'Upload PDF', text: 'Drop the certificate PDF' },
-                                { num: '04', title: 'Scan QR', text: 'Scan the printed code' },
+                                { num: '1', title: 'By ID', text: 'Enter cert ID from email' },
+                                { num: '2', title: 'By Name', text: "Enter student's full name" },
+                                { num: '3', title: 'Upload PDF', text: 'Drop the certificate PDF' },
+                                { num: '4', title: 'Scan QR', text: 'Scan the printed code' },
                             ].map(({ num, title, text }) => (
-                                <div key={num} className="flex items-center gap-4 group/item">
-                                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 group-hover/item:border-fuchsia-500/50 group-hover/item:bg-fuchsia-500/10 transition-colors">
-                                        <span className="text-[10px] font-black text-fuchsia-400">{num}</span>
+                                <div key={num} className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                                        <span className="text-xs font-bold text-violet-400">{num}</span>
                                     </div>
                                     <div>
-                                        <p className="text-sm font-bold text-white mb-0.5">{title}</p>
+                                        <p className="text-sm font-semibold text-white mb-0.5">{title}</p>
                                         <p className="text-xs text-slate-400">{text}</p>
                                     </div>
                                 </div>
