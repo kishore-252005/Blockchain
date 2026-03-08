@@ -5,8 +5,9 @@ const CustomCursor = () => {
     const cursorX = useMotionValue(-100);
     const cursorY = useMotionValue(-100);
     const [isHovering, setIsHovering] = useState(false);
+    const [clickEffect, setClickEffect] = useState(false);
 
-    const springConfig = { damping: 25, stiffness: 700 };
+    const springConfig = { damping: 40, stiffness: 600 };
     const cursorXSpring = useSpring(cursorX, springConfig);
     const cursorYSpring = useSpring(cursorY, springConfig);
 
@@ -16,71 +17,64 @@ const CustomCursor = () => {
             cursorY.set(e.clientY);
         };
 
-        const handleHoverStart = (e) => {
-            const target = e.target;
-            if (
-                target.tagName === 'BUTTON' ||
-                target.tagName === 'A' ||
-                target.closest('.interactive-hover') ||
-                target.classList.contains('btn')
-            ) {
-                setIsHovering(true);
-            }
+        const handleHover = (e) => {
+            const isClickable = e.target.closest('button, a, .cursor-pointer, input, select');
+            setIsHovering(!!isClickable);
         };
 
-        const handleHoverEnd = () => {
-            setIsHovering(false);
-        };
+        const handleMouseDown = () => setClickEffect(true);
+        const handleMouseUp = () => setClickEffect(false);
 
         window.addEventListener('mousemove', moveCursor);
-        document.addEventListener('mouseover', handleHoverStart);
-        document.addEventListener('mouseout', handleHoverEnd);
+        document.addEventListener('mouseover', handleHover);
+        window.addEventListener('mousedown', handleMouseDown);
+        window.addEventListener('mouseup', handleMouseUp);
 
         return () => {
             window.removeEventListener('mousemove', moveCursor);
-            document.removeEventListener('mouseover', handleHoverStart);
-            document.removeEventListener('mouseout', handleHoverEnd);
+            document.removeEventListener('mouseover', handleHover);
+            window.removeEventListener('mousedown', handleMouseDown);
+            window.removeEventListener('mouseup', handleMouseUp);
         };
     }, [cursorX, cursorY]);
 
     return (
-        <>
-            {/* Main outer ring */}
+        <div className="fixed inset-0 pointer-events-none z-[99999]">
+            {/* Outer Ring */}
             <motion.div
-                className="fixed top-0 left-0 w-8 h-8 rounded-full border border-violet-500/50 pointer-events-none z-[9999]"
+                className="absolute top-0 left-0 w-10 h-10 border border-violet-500/40 rounded-full flex items-center justify-center p-2"
                 style={{
                     translateX: cursorXSpring,
                     translateY: cursorYSpring,
-                    x: "-50%",
-                    y: "-50%",
-                    scale: isHovering ? 2 : 1,
+                    x: '-50%',
+                    y: '-50%',
+                    scale: isHovering ? 1.5 : (clickEffect ? 0.8 : 1),
+                    backgroundColor: isHovering ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
                 }}
-                transition={{ type: "spring", damping: 30, stiffness: 800 }}
             />
-
-            {/* Central dot */}
+            {/* Inner Dot */}
             <motion.div
-                className="fixed top-0 left-0 w-2 h-2 rounded-full bg-violet-500 pointer-events-none z-[9999]"
+                className="absolute top-0 left-0 w-1.5 h-1.5 bg-violet-400 rounded-full"
                 style={{
                     translateX: cursorX,
                     translateY: cursorY,
-                    x: "-50%",
-                    y: "-50%",
-                    scale: isHovering ? 0 : 1,
+                    x: '-50%',
+                    y: '-50%',
+                    scale: clickEffect ? 2 : 1,
+                    opacity: isHovering ? 0 : 1,
                 }}
             />
-
-            {/* Trailing glow */}
+            {/* Trail effect bubble */}
             <motion.div
-                className="fixed top-0 left-0 w-32 h-32 rounded-full bg-violet-600/10 blur-3xl pointer-events-none z-[9998]"
+                className="absolute top-0 left-0 w-4 h-4 bg-violet-500/10 rounded-full blur-md"
                 style={{
                     translateX: cursorXSpring,
                     translateY: cursorYSpring,
-                    x: "-50%",
-                    y: "-50%",
+                    x: '-50%',
+                    y: '-50%',
                 }}
             />
-        </>
+        </div>
     );
 };
 

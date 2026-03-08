@@ -12,6 +12,7 @@ import Footer from './components/Footer';
 import AuthPage from './components/AuthPage';
 import PlaceholderPage from './components/PlaceholderPage';
 import ErrorBoundary from './components/ErrorBoundary';
+import CustomCursor from './components/CustomCursor';
 import { BlockchainProvider, useBlockchain } from './context/BlockchainContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -40,6 +41,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { account, connectWallet, isConnecting } = useBlockchain();
   const { user, logout } = useAuth();
+  const isHome = location.pathname === '/';
 
   // Role-based navigation
   const institutionLinks = [
@@ -49,9 +51,10 @@ const Navbar = () => {
   const organizationLinks = [
     { name: 'Verify', path: '/verify', icon: Search },
     { name: 'Graduate Wallet', path: '/graduate', icon: Wallet },
+    { name: 'About', path: '/', icon: Globe },
   ];
 
-  const navLinks = !user ? [{ name: 'Verify', path: '/verify', icon: Search }] : user.role === 'institution' ? institutionLinks : organizationLinks;
+  const navLinks = !user ? [{ name: 'Verify', path: '/verify', icon: Search }, { name: 'About', path: '/', icon: Globe }] : user.role === 'institution' ? institutionLinks : organizationLinks;
 
   const handleLogout = () => { logout(); navigate('/'); };
 
@@ -60,14 +63,21 @@ const Navbar = () => {
 
   return (
     <nav className="glass sticky top-4 z-50 mx-4 my-6 py-4 px-8 flex items-center justify-between border-white/5">
-      <Link to="/" className="flex items-center gap-2 group no-underline">
-        <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
-          <Shield className="text-white" size={24} />
-        </div>
-        <span className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-          TrustCert
-        </span>
-      </Link>
+      <div className="flex items-center gap-4">
+        {!isHome && (
+          <button onClick={() => navigate(-1)} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-400 hover:text-white mr-2">
+            <ChevronLeft size={20} />
+          </button>
+        )}
+        <Link to="/" className="flex items-center gap-2 group no-underline">
+          <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+            <Shield className="text-white" size={24} />
+          </div>
+          <span className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+            TrustCert
+          </span>
+        </Link>
+      </div>
 
       {/* Desktop nav */}
       <div className="hidden md:flex items-center gap-8">
@@ -86,21 +96,21 @@ const Navbar = () => {
       <div className="flex items-center gap-3">
         {user ? (
           <>
-            {/* User badge */}
-            <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold ${roleBg} ${roleColor}`}>
-              {user.role === 'institution' ? <GraduationCap size={13} /> : <Briefcase size={13} />}
-              <span className="max-w-[120px] truncate">{user.orgName}</span>
-            </div>
+            {/* Profile Badge */}
+            <Link to="/profile" className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold no-underline transition-all hover:scale-105 ${roleBg} ${roleColor}`}>
+              <User size={14} />
+              <span className="max-w-[100px] truncate">{user.name}</span>
+            </Link>
             {/* MetaMask wallet */}
             <button onClick={connectWallet} disabled={isConnecting}
-              className="btn btn-secondary py-2 px-3 text-xs hidden sm:flex">
+              className="btn btn-secondary py-2 px-3 text-xs hidden lg:flex">
               <Wallet size={14} />
               {account ? `${account.substring(0, 6)}...${account.substring(38)}` : (isConnecting ? '...' : 'Wallet')}
             </button>
             {/* Logout */}
             <button onClick={handleLogout}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 text-xs font-bold transition-all">
-              <LogOut size={14} /> <span className="hidden sm:inline">Logout</span>
+              <LogOut size={18} /> <span className="hidden sm:inline">Logout</span>
             </button>
           </>
         ) : (
@@ -155,6 +165,44 @@ const Navbar = () => {
         )}
       </AnimatePresence>
     </nav>
+  );
+};
+
+// ── Profile Page ─────────────────────────────────────────────────────────────
+const ProfilePage = () => {
+  const { user } = useAuth();
+  if (!user) return null;
+  return (
+    <div className="max-w-2xl mx-auto py-12">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass p-10 text-center">
+        <div className="w-24 h-24 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-violet-500/20">
+          <User size={48} className="text-white" />
+        </div>
+        <h1 className="text-3xl font-black mb-2">{user.name}</h1>
+        <p className="text-violet-400 font-bold uppercase tracking-widest text-sm mb-6">{user.role}</p>
+
+        <div className="grid grid-cols-1 gap-4 text-left">
+          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+            <p className="text-xs text-slate-500 uppercase font-bold mb-1">Organization</p>
+            <p className="font-semibold text-slate-200">{user.orgName}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+            <p className="text-xs text-slate-500 uppercase font-bold mb-1">Email Address</p>
+            <p className="font-semibold text-slate-200">{user.email}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+            <p className="text-xs text-slate-500 uppercase font-bold mb-1">User ID</p>
+            <p className="font-mono text-xs text-slate-400">{user.id}</p>
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-center">
+          <button onClick={() => window.history.back()} className="btn btn-secondary">
+            <ChevronLeft size={16} /> Back to Dashboard
+          </button>
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
@@ -217,6 +265,11 @@ const AppRoutes = () => {
           <GraduateWallet account={account} />
         </ProtectedRoute>
       } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <ProfilePage />
+        </ProtectedRoute>
+      } />
 
       {/* Placeholder Pages */}
       {['/how-it-works', '/institutions', '/verification-apis', '/trust-network', '/documentation', '/privacy-policy', '/terms-of-service', '/status', '/help-center', '/security'].map(path => (
@@ -244,6 +297,7 @@ function App() {
               <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light pointer-events-none" />
             </div>
 
+            <CustomCursor />
             <NetworkStatus />
 
             <div className="relative z-10 min-h-screen container mx-auto pb-20">

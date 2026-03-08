@@ -204,6 +204,7 @@ const AuthPage = ({ onSuccess }) => {
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [loginRole, setLoginRole] = useState('institution');
     const [form, setForm] = useState({ name: '', orgName: '', email: '', password: '', confirmPassword: '' });
 
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -213,28 +214,16 @@ const AuthPage = ({ onSuccess }) => {
         if (e && e.preventDefault) e.preventDefault();
         setError(''); setLoading(true);
         try {
-            console.log("Submitting login for email:", form.email);
-            const u = await login({ email: form.email, password: form.password });
-            console.log("Login successful! User:", u);
+            console.log(`Submitting ${loginRole} login for email:`, form.email);
+            const u = await login({ email: form.email, password: form.password, role: loginRole });
             onSuccess(u);
         }
         catch (err) {
-            console.error("Login caught error:", err);
-            setError(err.response?.data?.error || 'Invalid email or password. Try the demo buttons below.');
+            setError(err.response?.data?.error || 'Invalid email or password. Please check your credentials.');
         }
         finally { setLoading(false); }
     };
 
-    const handleDemoLogin = async (email) => {
-        set('email', email);
-        set('password', 'demo1234');
-        setTimeout(() => {
-            const fakeEvent = { preventDefault: () => { } };
-            form.email = email;
-            form.password = 'demo1234';
-            handleLogin(fakeEvent);
-        }, 100);
-    };
 
     const handleRegister = async (e) => {
         e.preventDefault(); setError('');
@@ -304,6 +293,26 @@ const AuthPage = ({ onSuccess }) => {
                             <motion.form key="login" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
                                 onSubmit={handleLogin}>
 
+                                {/* Role Filter */}
+                                <div style={{ display: 'flex', gap: 8, marginBottom: 24, padding: 4, background: 'rgba(15,23,42,0.5)', borderRadius: 12, border: '1px solid rgba(71,85,105,0.2)' }}>
+                                    {[
+                                        { id: 'institution', label: 'Institution', icon: GraduationCap },
+                                        { id: 'organization', label: 'Company', icon: Briefcase },
+                                    ].map(role => (
+                                        <button key={role.id} type="button" onClick={() => setLoginRole(role.id)}
+                                            style={{
+                                                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                                padding: '8px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
+                                                fontSize: 12, fontWeight: 700, transition: 'all 0.2s',
+                                                background: loginRole === role.id ? 'rgba(139,92,246,0.15)' : 'transparent',
+                                                color: loginRole === role.id ? '#a78bfa' : '#475569',
+                                                boxShadow: loginRole === role.id ? 'inset 0 0 0 1px rgba(139,92,246,0.2)' : 'none',
+                                            }}>
+                                            <role.icon size={14} /> {role.label}
+                                        </button>
+                                    ))}
+                                </div>
+
                                 <InputField icon={Mail} label="Email Address" type="email" id="login-email"
                                     placeholder="admin@university.edu" value={form.email} onChange={e => set('email', e.target.value)} required />
 
@@ -331,35 +340,6 @@ const AuthPage = ({ onSuccess }) => {
                                     {loading ? <><Loader2 size={16} className="animate-spin" /> Signing In...</> : <>Sign In <ArrowRight size={16} /></>}
                                 </button>
 
-                                {/* Divider */}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
-                                    <div style={{ flex: 1, height: 1, background: 'rgba(71,85,105,0.4)' }} />
-                                    <span style={{ color: '#475569', fontSize: 11, fontWeight: 700, letterSpacing: 2 }}>QUICK DEMO</span>
-                                    <div style={{ flex: 1, height: 1, background: 'rgba(71,85,105,0.4)' }} />
-                                </div>
-
-                                {/* Demo buttons */}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                                    {[
-                                        { label: 'Institution', sub: 'IIT Bombay', icon: GraduationCap, color: '#8b5cf6', email: 'admin@iitbombay.edu' },
-                                        { label: 'Company', sub: 'Google Inc.', icon: Briefcase, color: '#d946ef', email: 'hr@google.com' },
-                                    ].map(({ label, sub, icon: Icon, color, email }) => (
-                                        <button key={email} type="button" onClick={() => handleDemoLogin(email)}
-                                            style={{
-                                                padding: '13px 16px', background: 'rgba(15,23,42,0.8)', border: `1px solid ${color}30`,
-                                                borderRadius: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
-                                            }}
-                                            onMouseEnter={e => e.currentTarget.style.borderColor = color + '60'}
-                                            onMouseLeave={e => e.currentTarget.style.borderColor = color + '30'}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                                <Icon size={14} color={color} />
-                                                <span style={{ color, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 2 }}>{label}</span>
-                                            </div>
-                                            <div style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600 }}>{sub}</div>
-                                        </button>
-                                    ))}
-                                </div>
                             </motion.form>
                         )}
 
