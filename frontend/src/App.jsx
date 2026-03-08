@@ -12,7 +12,6 @@ import Footer from './components/Footer';
 import AuthPage from './components/AuthPage';
 import PlaceholderPage from './components/PlaceholderPage';
 import ErrorBoundary from './components/ErrorBoundary';
-import CustomCursor from './components/CustomCursor';
 import { BlockchainProvider, useBlockchain } from './context/BlockchainContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -245,7 +244,6 @@ function App() {
               <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light pointer-events-none" />
             </div>
 
-            <CustomCursor />
             <NetworkStatus />
 
             <div className="relative z-10 min-h-screen container mx-auto pb-20">
