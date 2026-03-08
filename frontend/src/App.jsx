@@ -46,6 +46,7 @@ const Navbar = () => {
   const institutionLinks = [
     { name: 'Issue Certs', path: '/admin', icon: GraduationCap },
     { name: 'Analytics', path: '/analytics', icon: BarChart2 },
+    { name: 'About', path: '/', icon: Globe },
   ];
   const organizationLinks = [
     { name: 'Verify', path: '/verify', icon: Search },
