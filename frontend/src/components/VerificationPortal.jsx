@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, QrCode, ShieldCheck, AlertTriangle, User, Calendar, BookOpen,
@@ -129,6 +129,13 @@ const PdfUploader = ({ onExtracted, loading }) => {
     const [pdfError, setPdfError] = useState('');
     const inputRef = useRef(null);
 
+    const hashArrayBuffer = async (arrayBuffer) => {
+        if (!window.crypto?.subtle) return null;
+        const digest = await window.crypto.subtle.digest('SHA-256', arrayBuffer);
+        const bytes = new Uint8Array(digest);
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    };
+
     const extractFromPdf = async (file) => {
         setExtracting(true);
         setPdfError('');
@@ -136,37 +143,68 @@ const PdfUploader = ({ onExtracted, loading }) => {
         setFileName(file.name);
         try {
             const arrayBuffer = await file.arrayBuffer();
+            const fileHash = await hashArrayBuffer(arrayBuffer);
             const pdfjsLib = await import('pdfjs-dist');
             pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            // Smart extraction patterns
+            const idPatterns = [
+                /(?:Certificate\s*ID|Cert\s*ID|ID)[:\s#-]+([a-zA-Z0-9\-]{4,30})/i,
+                /(?:Certificate\s*No|Cert\s*No|No\.?|Number)[:\s#-]+([a-zA-Z0-9\-]{4,30})/i,
+                /\b(TC-[a-zA-Z0-9]{8,15})\b/i,
+                /\b([a-zA-Z]{2,8}-\d{4}-\d{2,6})\b/,
+                /\b(0x[a-fA-F0-9]{40})\b/i
+            ];
+            const namePatterns = [
+                /(?:This is to certify that|awarded to|certify that|presented to)[:\s]+([A-Z][a-z]+(?: [A-Z][a-z]+){0,3})/i,
+                /(?:Student Name|Name|Candidate)[:\s]+([A-Za-z]+(?: [A-Za-z]+){0,3})/i,
+            ];
+
             let fullText = '';
-            for (let i = 1; i <= pdf.numPages; i++) {
+            let detectedId = null, detectedName = null;
+            const maxPages = 1; // Efficiency: scan max 1 page
+
+            for (let i = 1; i <= maxPages; i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
                 fullText += content.items.map(s => s.str).join(' ') + '\n';
+                
+                if (!detectedId) {
+                    for (const p of idPatterns) {
+                        const m = fullText.match(p);
+                        if (m) { detectedId = m[1].trim(); break; }
+                    }
+                }
+                if (!detectedName) {
+                    for (const p of namePatterns) {
+                        const m = fullText.match(p);
+                        if (m) { detectedName = m[1].trim(); break; }
+                    }
+                }
+                if (detectedId && detectedName) break; // Efficiency: break early if both found
             }
 
-            // Smart extraction patterns
-            const idPatterns = [
-                /(?:Certificate\s*ID|Cert\s*ID|ID)[:\s#]+([A-Z0-9\-]{4,30})/i,
-                /(?:Certificate\s*No|Cert\s*No|No\.?)[:\s#]+([A-Z0-9\-]{4,30})/i,
-                /([A-Z]{2,8}-\d{4}-\d{2,6})/,
-                /([A-Z]{2,8}-0[Xx][0-9A-Fa-f]{4,12})/,
-            ];
-            const namePatterns = [
-                /(?:This is to certify that|awarded to|certify that)[:\s]+([A-Z][a-z]+(?: [A-Z][a-z]+){1,3})/i,
-                /(?:Student Name|Name)[:\s]+([A-Z][a-z]+(?: [A-Z][a-z]+){1,3})/i,
-            ];
-
-            let detectedId = null, detectedName = null;
-            for (const p of idPatterns) {
-                const m = fullText.match(p);
-                if (m) { detectedId = m[1].trim(); break; }
-            }
-            for (const p of namePatterns) {
-                const m = fullText.match(p);
-                if (m) { detectedName = m[1].trim(); break; }
+            // If text extraction fails, try QR detection from the PDF image (common for image-based PDFs)
+            if (!detectedId && typeof window !== 'undefined' && 'BarcodeDetector' in window) {
+                try {
+                    const page = await pdf.getPage(1);
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    await page.render({ canvasContext: ctx, viewport }).promise;
+                    const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+                    const barcodes = await detector.detect(canvas);
+                    if (barcodes && barcodes.length > 0) {
+                        const raw = barcodes[0].rawValue || '';
+                        const parsed = raw.includes('/') ? raw.split('/').pop().split('?')[0] : raw;
+                        if (parsed) detectedId = parsed.trim();
+                    }
+                } catch {
+                    // Ignore QR failures; fallback continues below.
+                }
             }
 
             // Fallback to filename if no text found
@@ -174,21 +212,21 @@ const PdfUploader = ({ onExtracted, loading }) => {
                 detectedId = file.name.replace(/\.pdf$/i, '').trim();
             }
 
-            const result = { id: detectedId, name: detectedName, rawText: fullText.substring(0, 600) };
+            const result = { id: detectedId, name: detectedName, rawText: fullText.substring(0, 600), fileHash };
             setExtracted(result);
             setExtracting(false);
 
             if (detectedId) {
-                onExtracted(detectedId, detectedName);
+                onExtracted(detectedId, detectedName, fileHash);
             } else if (detectedName) {
-                onExtracted(detectedName, null);
+                onExtracted(detectedName, null, fileHash);
             }
         } catch (err) {
             // If the PDF library fails (e.g. scanned image, cors worker issue), fallback to using the filename.
             const fallbackId = file.name.replace(/\.pdf$/i, '').trim();
-            setExtracted({ id: fallbackId, name: null, rawText: '' });
+            setExtracted({ id: fallbackId, name: null, rawText: '', fileHash: null });
             setExtracting(false);
-            onExtracted(fallbackId, null);
+            onExtracted(fallbackId, null, null);
         }
     };
 
@@ -248,8 +286,12 @@ const PdfUploader = ({ onExtracted, loading }) => {
                         <p className="text-slate-500 text-xs">Could not auto-detect fields. Please copy the ID from the PDF and use "By ID" tab.</p>
                     )}
                     {(extracted.id || extracted.name) && (
-                        <div className="flex items-center gap-2 text-green-400 text-xs font-bold">
-                            <CheckCircle2 size={13} /> Verifying automatically...
+                        <div className={`flex items-center gap-2 text-xs font-bold ${loading ? 'text-green-400' : 'text-slate-500'}`}>
+                            {loading ? (
+                                <><Loader2 size={13} className="animate-spin" /> Verifying automatically...</>
+                            ) : (
+                                <><CheckCircle2 size={13} /> Setup complete</>
+                            )}
                         </div>
                     )}
                 </motion.div>
@@ -274,12 +316,19 @@ const VerificationPortal = ({ user }) => {
         { name: 'Unknown ID: 0x4f...2a', status: 'Invalid', time: '1 HOUR AGO' },
     ]);
 
-    const doVerify = useCallback(async (id) => {
+    const doVerify = useCallback(async (id, options = {}) => {
         if (!id) return;
         setLoading(true);
         setResult(null);
         try {
-            const { data } = await axios.get(`${API_BASE}/certificates/${encodeURIComponent(id)}`);
+            let data;
+            if (options.fileHash) {
+                const res = await axios.post(`${API_BASE}/verify`, { id, fileHash: options.fileHash });
+                data = res.data;
+            } else {
+                const res = await axios.get(`${API_BASE}/certificates/${encodeURIComponent(id)}`);
+                data = res.data;
+            }
             const cert = data.data;
             setResult({
                 status: 'authentic', fromDB: true,
@@ -292,21 +341,15 @@ const VerificationPortal = ({ user }) => {
                 certId: cert.id,
             });
             setRecentVerifications(prev => [{ name: cert.name, status: 'Valid', time: 'JUST NOW' }, ...prev.slice(0, 4)]);
-        } catch {
-            // Fallback demo
-            if (id.toLowerCase().includes('iitb') || id.startsWith('0x') || id.toLowerCase().includes('rahul sharma')) {
-                const isNameSearch = !id.toLowerCase().includes('iitb') && !id.startsWith('0x');
-                setResult({
-                    status: 'authentic', fromDB: false,
-                    student: 'Rahul Sharma', degree: 'Bachelor of Technology', major: 'Computer Science',
-                    institution: 'IIT Bombay', issued: '2023', grade: 'A+',
-                    hash: '0x7d2f4a1c8b9e0d3f2a1b5c4d3e2f1a0b9c8d7e6f', block: '4208129',
-                    timestamp: '2023-06-15 14:30:12 UTC', certId: isNameSearch ? 'IITB-2023-001' : id,
-                });
-                setRecentVerifications(prev => [{ name: 'Rahul Sharma', status: 'Valid', time: 'JUST NOW' }, ...prev.slice(0, 4)]);
-            } else {
+        } catch (err) {
+            const status = err?.response?.status;
+            if (status === 404 || status === 422) {
                 setResult({ status: 'invalid' });
                 setRecentVerifications(prev => [{ name: `ID: ${id.substring(0, 12)}...`, status: 'Invalid', time: 'JUST NOW' }, ...prev.slice(0, 4)]);
+            } else if (status === 409) {
+                setResult({ status: 'legacy', message: err?.response?.data?.error || 'Hash not available for this certificate.' });
+            } else {
+                setResult({ status: 'unreachable', message: err?.message || 'Verification service unavailable.' });
             }
         } finally {
             setLoading(false);
@@ -326,10 +369,10 @@ const VerificationPortal = ({ user }) => {
         setTimeout(() => doVerify(scannedId), 300);
     }, [doVerify]);
 
-    const handlePDFExtracted = useCallback((id, name) => {
+    const handlePDFExtracted = useCallback((id, name, fileHash) => {
         if (id) {
             setCertId(id);
-            setTimeout(() => doVerify(id), 600);
+            setTimeout(() => doVerify(id, { fileHash }), 600);
         } else if (name) {
             setNameInput(name);
             setCertId(name);
@@ -572,6 +615,42 @@ const VerificationPortal = ({ user }) => {
                                 </div>
                                 <p className="text-slate-500 text-sm mt-2">
                                     No matching record was found in our database or on the Polygon blockchain ledger.
+                                </p>
+                            </motion.div>
+                        )}
+
+                        {result?.status === 'legacy' && (
+                            <motion.div key="legacy" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+                                className="glass p-10 border-2 border-yellow-500/30">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-yellow-500/10">
+                                        <AlertTriangle size={40} className="text-yellow-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-bold">Legacy Certificate</h3>
+                                        <p className="text-slate-400 text-sm">This record doesn’t include a stored file hash.</p>
+                                    </div>
+                                </div>
+                                <p className="text-slate-500 text-sm mt-2">
+                                    The certificate ID may be valid, but the uploaded file cannot be verified for tampering.
+                                </p>
+                            </motion.div>
+                        )}
+
+                        {result?.status === 'unreachable' && (
+                            <motion.div key="unreachable" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+                                className="glass p-10 border-2 border-yellow-500/30">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-yellow-500/10">
+                                        <AlertTriangle size={40} className="text-yellow-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-bold">Verification Unavailable</h3>
+                                        <p className="text-slate-400 text-sm">We couldn't reach the verification service right now.</p>
+                                    </div>
+                                </div>
+                                <p className="text-slate-500 text-sm mt-2">
+                                    Please check that the API server is running and try again. {result?.message ? `(${result.message})` : ''}
                                 </p>
                             </motion.div>
                         )}

@@ -136,7 +136,7 @@ app.post('/api/auth/login', (req, res) => {
 
 // Save new certificate
 app.post('/api/certificates', (req, res) => {
-    const { id, name, degree, graduationYear, finalGrade, issuer, ipfsCid, status } = req.body;
+    const { id, name, degree, graduationYear, finalGrade, issuer, ipfsCid, status, fileName, fileHash } = req.body;
     if (!id || !name) return res.status(400).json({ error: "Certificate ID and Student Name are required." });
 
     const db = readDB();
@@ -149,6 +149,8 @@ app.post('/api/certificates', (req, res) => {
     const newCert = {
         id, name, degree, graduationYear, finalGrade, issuer, ipfsCid,
         status: status || 'Confirmed',
+        fileName,
+        fileHash,
         timestamp: new Date().toISOString()
     };
 
@@ -168,13 +170,57 @@ app.get('/api/certificates/:id', (req, res) => {
     const db = readDB();
     if (!db.verifications) db.verifications = [];
 
-    const searchQuery = req.params.id.toLowerCase();
-    const cert = db.certificates.find(c =>
-        (c.id && c.id.toLowerCase() === searchQuery) ||
-        (c.name && c.name.toLowerCase() === searchQuery)
-    );
+    const searchQuery = decodeURIComponent(req.params.id).toLowerCase().trim();
+    
+    // Exact match first
+    let cert = db.certificates.find(c => {
+        return (c.id && c.id.toLowerCase().trim() === searchQuery) || 
+               (c.name && c.name.toLowerCase().trim() === searchQuery);
+    });
+
+    // Partial match if not found exactly
+    if (!cert && searchQuery.length >= 3) {
+        cert = db.certificates.find(c => {
+            const idMatch = c.id && c.id.toLowerCase().includes(searchQuery);
+            const nameMatch = c.name && c.name.toLowerCase().includes(searchQuery);
+            const fileMatch = c.fileName && c.fileName.toLowerCase().includes(searchQuery);
+            return idMatch || nameMatch || fileMatch;
+        });
+    }
 
     if (!cert) return res.status(404).json({ error: "Certificate not found." });
+
+    db.verifications.push({
+        certId: cert.id,
+        studentName: cert.name,
+        timestamp: new Date().toISOString(),
+        status: 'Valid'
+    });
+    writeDB(db);
+
+    res.json({ data: cert });
+});
+
+// Verify certificate by ID + file hash (strong verification)
+app.post('/api/verify', (req, res) => {
+    const { id, fileHash } = req.body || {};
+    if (!id || !fileHash) return res.status(400).json({ error: "Certificate ID and fileHash are required." });
+
+    const db = readDB();
+    if (!db.verifications) db.verifications = [];
+
+    const searchQuery = String(id).toLowerCase().trim();
+    const cert = (db.certificates || []).find(c => c.id && c.id.toLowerCase().trim() === searchQuery);
+    if (!cert) return res.status(404).json({ error: "Certificate not found." });
+
+    if (!cert.fileHash) {
+        return res.status(409).json({ error: "Certificate hash not available for this record." });
+    }
+
+    const isMatch = String(cert.fileHash).toLowerCase() === String(fileHash).toLowerCase();
+    if (!isMatch) {
+        return res.status(422).json({ error: "Certificate hash mismatch." });
+    }
 
     db.verifications.push({
         certId: cert.id,

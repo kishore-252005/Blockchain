@@ -48,6 +48,13 @@ const AdminPortal = () => {
     const [isDownloading, setIsDownloading] = useState(false);
     const [generatedCert, setGeneratedCert] = useState(null);
 
+    const hashArrayBuffer = async (arrayBuffer) => {
+        if (!window.crypto?.subtle) return null;
+        const digest = await window.crypto.subtle.digest('SHA-256', arrayBuffer);
+        const bytes = new Uint8Array(digest);
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    };
+
     const downloadPDF = async () => {
         setIsDownloading(true);
         const elementHTML = document.querySelector('#hidden-certificate-preview');
@@ -74,6 +81,7 @@ const AdminPortal = () => {
                 const course = row.course || row.Course || row.Degree;
                 const year = row.year || row.Year || row.GraduationYear;
                 const pdfLink = row.pdf_link || row.pdfLink || row.PDF;
+                const fileHash = row.fileHash || row.FileHash || row.hash || row.Hash;
 
                 if (!name || !course) continue;
 
@@ -90,7 +98,8 @@ const AdminPortal = () => {
                     issuer: account || "0x_Mock_Institution",
                     ipfsCid: mockIpfsCID,
                     status: "Confirmed",
-                    fileName: pdfLink ? pdfLink.split('/').pop() : 'bulk_upload.pdf'
+                    fileName: pdfLink ? pdfLink.split('/').pop() : 'bulk_upload.pdf',
+                    fileHash
                 });
 
                 newTransactions.push({
@@ -123,8 +132,11 @@ const AdminPortal = () => {
 
         const mockIpfsCID = "bafybeig..." + Math.random().toString(16).substr(2, 8);
         const uniqueKey = "TC-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+        let fileHash = null;
 
         try {
+            const buffer = await selectedFile.arrayBuffer();
+            fileHash = await hashArrayBuffer(buffer);
             // 1. Save data directly to our Backend Database!
             await axios.post(`${API_BASE}/certificates`, {
                 id: uniqueKey, // Use generated unique key as ID
@@ -135,7 +147,8 @@ const AdminPortal = () => {
                 issuer: account || "0x_Mock_Institution",
                 ipfsCid: mockIpfsCID,
                 status: "Pending",
-                fileName: selectedFile.name
+                fileName: selectedFile.name,
+                fileHash
             });
 
             // 2. Complete the Blockchain Simulation (On-Chain Storage)
@@ -160,7 +173,8 @@ const AdminPortal = () => {
                 grade: certData.grade,
                 hash: "0x" + Math.random().toString(16).substr(2, 40),
                 ipfsCid: mockIpfsCID,
-                fileName: selectedFile.name
+                fileName: selectedFile.name,
+                fileHash
             });
         } catch (error) {
             console.error("Database Error:", error);
