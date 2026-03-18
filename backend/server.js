@@ -5,7 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const DB_FILE = path.join(__dirname, 'database.json');
 
 app.use(cors());
