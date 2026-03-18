@@ -6,12 +6,12 @@ import { Shield, CheckCircle, Globe, Zap, Cpu, Lock, Share2, ChevronDown, Chevro
 const FAQItem = ({ question, answer }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
-        <div className="border-b border-slate-800 last:border-0">
+        <div className="faq-item border-b border-slate-800 last:border-0">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full py-6 flex justify-between items-center text-left hover:text-violet-400 transition-colors"
+                className="w-full py-4 flex justify-between items-center text-left hover:text-violet-300 transition-colors"
             >
-                <span className="font-bold text-lg">{question}</span>
+                <span className="font-semibold text-base">{question}</span>
                 {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </button>
             <AnimatePresence>
@@ -22,7 +22,7 @@ const FAQItem = ({ question, answer }) => {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                     >
-                        <p className="pb-6 text-slate-400 leading-relaxed">{answer}</p>
+                        <p className="pb-4 text-slate-400 leading-relaxed text-sm">{answer}</p>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -119,24 +119,10 @@ const Hero = () => {
                 </div>
             </div>
 
-            {/* Partners Marquee (Static simulation) */}
-            <div className="py-16 bg-slate-900/30 overflow-hidden border-y border-slate-800">
-                <div className="container mx-auto px-4">
-                    <p className="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-10">Trusted By Global Institutions</p>
-                    <div className="flex flex-wrap justify-center gap-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-                        <div className="text-2xl font-black tracking-tighter">IIT BOMBAY</div>
-                        <div className="text-2xl font-black tracking-tighter">STANFORD</div>
-                        <div className="text-2xl font-black tracking-tighter">MIT OPEN</div>
-                        <div className="text-2xl font-black tracking-tighter">NUS CERT</div>
-                        <div className="text-2xl font-black tracking-tighter">OXFORD UNI</div>
-                    </div>
-                </div>
-            </div>
-
             {/* FAQ Section */}
-            <div className="py-24 max-w-3xl mx-auto px-4">
-                <h2 className="text-4xl font-black mb-12 text-center">Frequently Asked <span className="gradient-text">Questions</span></h2>
-                <div className="glass p-8">
+            <div className="py-20 max-w-3xl mx-auto px-4">
+                <h2 className="text-4xl font-black mb-10 text-center">Frequently Asked <span className="gradient-text">Questions</span></h2>
+                <div className="glass glass-strong p-6 md:p-8">
                     <FAQItem
                         question="Is my personal data stored on the blockchain?"
                         answer="No. TrustCert only stores a cryptographic hash of your certificate. Your actual name and grades remain private and are only visible when you choose to share the original digital file or link."

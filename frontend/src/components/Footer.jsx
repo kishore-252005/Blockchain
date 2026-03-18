@@ -55,17 +55,13 @@ const Footer = () => {
                     </div>
                 </div>
 
-                <div className="pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="pt-8 border-t border-slate-900 flex flex-col items-center gap-4">
                     <p className="text-slate-600 text-xs text-center md:text-left">
                         © 2026 TrustCert Protocol. Built on Polygon. <br className="md:hidden" />
                         <span className="hidden md:inline"> | </span>
                         Compliant with IT Act 2000 & GDPR.
                     </p>
-                    <div className="flex gap-6 text-xs text-slate-600">
-                        <Link to="/status" className="hover:text-slate-400">Status</Link>
-                        <Link to="/help-center" className="hover:text-slate-400">Help Center</Link>
-                        <Link to="/security" className="hover:text-slate-400">Security</Link>
-                    </div>
+                    
                 </div>
             </div>
         </footer>

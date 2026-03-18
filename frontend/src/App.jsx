@@ -21,7 +21,7 @@ const NetworkStatus = () => (
     <div className="container mx-auto px-4 flex items-center justify-between text-[10px] uppercase tracking-widest font-bold">
       <div className="flex items-center gap-2 text-violet-400">
         <Activity size={12} className="animate-pulse" />
-        Live: Polygon Amoy Testnet
+        Live Network
       </div>
       <div className="flex items-center gap-4 text-slate-500">
         <span>Block: #4208129</span>
